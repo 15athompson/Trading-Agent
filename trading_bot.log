@@ -108,3 +108,97 @@
 2025-03-28 19:13:47,869 - TradingBot - INFO -   Average P&L: 0.00
 2025-03-28 19:13:47,870 - TradingBotExample - INFO - Waiting for 5 seconds...
 2025-03-28 19:13:48,963 - TradingBotExample - INFO - Demo stopped by user
+2025-03-28 20:34:16,840 - TradingBot.Strategies - INFO - ML strategies imported successfully
+2025-03-28 20:34:19,049 - TradingBot - INFO - Configuration loaded from config.json
+2025-03-28 20:34:19,050 - TradingBot.DataFetcher - WARNING - Unknown provider: example_provider. Using demo data fetcher.
+2025-03-28 20:34:19,050 - TradingBot.DataFetcher - INFO - Initialized example_provider data fetcher
+2025-03-28 20:34:19,057 - TradingBot.DataFetcher - INFO - Demo data fetcher initialized
+2025-03-28 20:34:19,058 - TradingBot.RiskManager - INFO - Risk manager initialized with max_position_size=0.1, stop_loss=0.05, take_profit=0.1
+2025-03-28 20:34:19,064 - TradingBot.PortfolioManager - INFO - Initialized new portfolio with balance 10000.00
+2025-03-28 20:34:19,064 - TradingBot.Notifications - WARNING - Notification configuration file notification_config.json not found. Creating default configuration.
+2025-03-28 20:34:19,066 - TradingBot.Notifications - INFO - Default notification configuration created at notification_config.json
+2025-03-28 20:34:19,068 - TradingBot.Notifications - INFO - Notification system initialized
+2025-03-28 20:34:19,069 - TradingBot.Strategies - INFO - SMA Strategy initialized with short_window=20, long_window=50
+2025-03-28 20:34:19,069 - TradingBot - INFO - Trading bot initialized with strategy: simple_moving_average
+2025-03-28 20:34:19,070 - TradingBot - INFO - Trading bot started
+2025-03-28 20:34:19,072 - TradingBot.Notifications - INFO - Console notification: Trading Bot Started
+2025-03-28 20:34:19,072 - TradingBot - INFO - Fetching market data...
+2025-03-28 20:34:19,073 - TradingBot - INFO - Market data updated for 2 symbols
+2025-03-28 20:34:19,074 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:34:19,074 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:34:19,075 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:34:19,075 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:34:19,076 - TradingBot - INFO - Executing trades...
+2025-03-28 20:34:19,076 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:34:19,077 - TradingBot - INFO - Current Prices:
+2025-03-28 20:34:19,077 - TradingBot - INFO -   BTC/USD: 50440.56
+2025-03-28 20:34:19,078 - TradingBot - INFO -   ETH/USD: 2968.83
+2025-03-28 20:34:19,078 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:34:19,079 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:34:19,079 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:34:19,080 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:34:19,080 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:34:19,081 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:34:19,081 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:34:19,082 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:34:19,082 - TradingBot - INFO - Sleeping for 60 seconds
+2025-03-28 20:34:41,911 - TradingBot - INFO - Trading bot stopped by user
+2025-03-28 20:34:41,913 - TradingBot - INFO - Trading bot stopped
+2025-03-28 20:34:41,919 - TradingBot.Notifications - INFO - Console notification: Trading Bot Stopped
+2025-03-28 20:35:15,745 - TradingBot - INFO - Configuration loaded from config.json
+2025-03-28 20:35:15,746 - TradingBot.DataFetcher - WARNING - Unknown provider: example_provider. Using demo data fetcher.
+2025-03-28 20:35:15,747 - TradingBot.DataFetcher - INFO - Initialized example_provider data fetcher
+2025-03-28 20:35:15,749 - TradingBot.DataFetcher - INFO - Demo data fetcher initialized
+2025-03-28 20:35:15,749 - TradingBot.RiskManager - INFO - Risk manager initialized with max_position_size=0.1, stop_loss=0.05, take_profit=0.1
+2025-03-28 20:35:15,749 - TradingBot.PortfolioManager - INFO - Initialized new portfolio with balance 10000.00
+2025-03-28 20:35:15,766 - TradingBot.Notifications - INFO - Notification configuration loaded from notification_config.json
+2025-03-28 20:35:15,768 - TradingBot.Notifications - INFO - Notification system initialized
+2025-03-28 20:35:15,768 - TradingBot.Strategies - INFO - SMA Strategy initialized with short_window=20, long_window=50
+2025-03-28 20:35:15,768 - TradingBot - INFO - Trading bot initialized with strategy: simple_moving_average
+2025-03-28 20:35:15,769 - TradingBot - INFO - Trading bot started
+2025-03-28 20:35:15,770 - TradingBot.Notifications - INFO - Console notification: Trading Bot Started
+2025-03-28 20:35:15,770 - TradingBot - INFO - Fetching market data...
+2025-03-28 20:35:15,771 - TradingBot - INFO - Market data updated for 2 symbols
+2025-03-28 20:35:15,771 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:35:15,772 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:35:15,772 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:35:15,772 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:35:15,773 - TradingBot - INFO - Executing trades...
+2025-03-28 20:35:15,773 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:35:15,774 - TradingBot - INFO - Current Prices:
+2025-03-28 20:35:15,774 - TradingBot - INFO -   BTC/USD: 51364.85
+2025-03-28 20:35:15,775 - TradingBot - INFO -   ETH/USD: 2986.56
+2025-03-28 20:35:15,775 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:35:15,776 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:35:15,776 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:35:15,777 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:35:15,777 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:35:15,778 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:35:15,778 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:35:15,780 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:35:15,780 - TradingBot - INFO - Sleeping for 60 seconds
+2025-03-28 20:35:22,219 - TradingBot - INFO - Trading bot stopped by user
+2025-03-28 20:35:22,219 - TradingBot - INFO - Trading bot stopped
+2025-03-28 20:35:22,221 - TradingBot.Notifications - INFO - Console notification: Trading Bot Stopped
+2025-03-28 20:35:34,805 - TradingBot.Strategies - INFO - ML strategies imported successfully
+2025-03-28 20:35:34,809 - TradingBot.Main - INFO - Running backtest from 2023-01-01 to 2023-12-31
+2025-03-28 20:35:34,810 - TradingBot.Backtesting - INFO - Configuration loaded from config.json
+2025-03-28 20:35:34,811 - TradingBot.RiskManager - INFO - Risk manager initialized with max_position_size=0.1, stop_loss=0.05, take_profit=0.1
+2025-03-28 20:35:34,811 - TradingBot.Strategies - INFO - SMA Strategy initialized with short_window=20, long_window=50
+2025-03-28 20:35:34,812 - TradingBot.Backtesting - INFO - Backtester initialized with strategy: simple_moving_average
+2025-03-28 20:35:34,812 - TradingBot.Backtesting - INFO - Generating synthetic historical data for backtesting
+2025-03-28 20:35:34,849 - TradingBot.Backtesting - INFO - Generated synthetic data for 2 symbols from 2023-01-01 to 2023-12-31
+2025-03-28 20:35:34,868 - TradingBot.Backtesting - INFO - Prepared historical data for BTC/USD: 365 data points
+2025-03-28 20:35:34,870 - TradingBot.Backtesting - INFO - Prepared historical data for ETH/USD: 365 data points
+2025-03-28 20:35:34,870 - TradingBot.Backtesting - INFO - Starting backtest with initial balance: 10000.00
+2025-03-28 20:35:51,901 - TradingBot.Strategies - INFO - ML strategies imported successfully
+2025-03-28 20:35:51,904 - TradingBot.Main - INFO - Running backtest from 2023-01-01 to 2023-12-31
+2025-03-28 20:35:51,905 - TradingBot.Backtesting - INFO - Configuration loaded from config.json
+2025-03-28 20:35:51,906 - TradingBot.RiskManager - INFO - Risk manager initialized with max_position_size=0.1, stop_loss=0.05, take_profit=0.1
+2025-03-28 20:35:51,906 - TradingBot.Strategies - INFO - SMA Strategy initialized with short_window=20, long_window=50
+2025-03-28 20:35:51,906 - TradingBot.Backtesting - INFO - Backtester initialized with strategy: simple_moving_average
+2025-03-28 20:35:51,906 - TradingBot.Backtesting - INFO - Generating synthetic historical data for backtesting
+2025-03-28 20:35:51,920 - TradingBot.Backtesting - INFO - Generated synthetic data for 2 symbols from 2023-01-01 to 2023-12-31
+2025-03-28 20:35:51,927 - TradingBot.Backtesting - INFO - Prepared historical data for BTC/USD: 365 data points
+2025-03-28 20:35:51,930 - TradingBot.Backtesting - INFO - Prepared historical data for ETH/USD: 365 data points
+2025-03-28 20:35:51,931 - TradingBot.Backtesting - INFO - Starting backtest with initial balance: 10000.00

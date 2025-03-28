@@ -1,0 +1,74 @@
+{
+    "enabled": true,
+    "channels": {
+        "email": {
+            "enabled": false,
+            "smtp_server": "smtp.gmail.com",
+            "smtp_port": 587,
+            "username": "your_email@gmail.com",
+            "password": "your_app_password",
+            "from_email": "your_email@gmail.com",
+            "to_email": "recipient@example.com",
+            "use_tls": true
+        },
+        "telegram": {
+            "enabled": false,
+            "bot_token": "YOUR_BOT_TOKEN",
+            "chat_id": "YOUR_CHAT_ID"
+        },
+        "webhook": {
+            "enabled": false,
+            "url": "https://example.com/webhook",
+            "headers": {
+                "Content-Type": "application/json"
+            }
+        },
+        "console": {
+            "enabled": true
+        }
+    },
+    "notification_types": {
+        "trade_executed": {
+            "enabled": true,
+            "channels": [
+                "console"
+            ]
+        },
+        "position_closed": {
+            "enabled": true,
+            "channels": [
+                "console"
+            ]
+        },
+        "stop_loss_triggered": {
+            "enabled": true,
+            "channels": [
+                "console"
+            ]
+        },
+        "take_profit_triggered": {
+            "enabled": true,
+            "channels": [
+                "console"
+            ]
+        },
+        "bot_started": {
+            "enabled": true,
+            "channels": [
+                "console"
+            ]
+        },
+        "bot_stopped": {
+            "enabled": true,
+            "channels": [
+                "console"
+            ]
+        },
+        "error": {
+            "enabled": true,
+            "channels": [
+                "console"
+            ]
+        }
+    }
+}

@@ -1,0 +1,130 @@
+PS C:\Users\aidan_1k98io6\OneDrive - University of Suffolk (1)\projects\AI\Machine learning\Trading Bot\agent\test> python example.py
+2025-03-28 20:37:31,508 - TradingBotExample - INFO - Starting comprehensive demo
+2025-03-28 20:37:31,547 - TradingBotExample - INFO - 
+=== Basic Trading Bot Demo ===
+2025-03-28 20:37:31,547 - TradingBotExample - INFO - Starting trading bot demo
+2025-03-28 20:37:34,714 - TradingBot.Strategies - INFO - ML strategies imported successfully
+2025-03-28 20:37:35,045 - TradingBot - INFO - Configuration loaded from config.json
+2025-03-28 20:37:35,046 - TradingBot.DataFetcher - WARNING - Unknown provider: example_provider. Using demo data fetcher.
+2025-03-28 20:37:35,047 - TradingBot.DataFetcher - INFO - Initialized example_provider data fetcher     
+2025-03-28 20:37:35,047 - TradingBot.DataFetcher - INFO - Demo data fetcher initialized
+2025-03-28 20:37:35,048 - TradingBot.RiskManager - INFO - Risk manager initialized with max_position_size=0.1, stop_loss=0.05, take_profit=0.1
+2025-03-28 20:37:35,049 - TradingBot.PortfolioManager - INFO - Initialized new portfolio with balance 10000.00
+2025-03-28 20:37:35,049 - TradingBot.Notifications - INFO - Notification configuration loaded from notification_config.json
+2025-03-28 20:37:35,050 - TradingBot.Notifications - INFO - Notification system initialized
+2025-03-28 20:37:35,050 - TradingBot.Strategies - INFO - SMA Strategy initialized with short_window=20, long_window=50
+2025-03-28 20:37:35,050 - TradingBot - INFO - Trading bot initialized with strategy: simple_moving_average
+2025-03-28 20:37:35,051 - TradingBotExample - INFO - Fetching initial market data...
+2025-03-28 20:37:35,051 - TradingBot - INFO - Fetching market data...
+2025-03-28 20:37:35,053 - TradingBot - INFO - Market data updated for 2 symbols
+2025-03-28 20:37:35,054 - TradingBotExample - INFO - Iteration 1/5
+2025-03-28 20:37:35,055 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:37:35,056 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:37:35,056 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:37:35,057 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:37:35,057 - TradingBotExample - INFO - Generated signals:
+2025-03-28 20:37:35,057 - TradingBotExample - INFO -   BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:37:35,057 - TradingBotExample - INFO -   ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:37:35,058 - TradingBot - INFO - Executing trades...
+2025-03-28 20:37:35,058 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:37:35,059 - TradingBot - INFO - Current Prices:
+2025-03-28 20:37:35,059 - TradingBot - INFO -   BTC/USD: 49247.91
+2025-03-28 20:37:35,059 - TradingBot - INFO -   ETH/USD: 2921.00
+2025-03-28 20:37:35,060 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:37:35,060 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:37:35,061 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:37:35,061 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:37:35,061 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:37:35,062 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:37:35,062 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:37:35,062 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:37:35,062 - TradingBotExample - INFO - Waiting for 5 seconds...
+2025-03-28 20:37:40,066 - TradingBotExample - INFO - Iteration 2/5
+2025-03-28 20:37:40,074 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:37:40,085 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:37:40,086 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:37:40,087 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:37:40,097 - TradingBotExample - INFO - Generated signals:
+2025-03-28 20:37:40,098 - TradingBotExample - INFO -   BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:37:40,099 - TradingBotExample - INFO -   ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:37:40,100 - TradingBot - INFO - Executing trades...
+2025-03-28 20:37:40,101 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:37:40,101 - TradingBot - INFO - Current Prices:
+2025-03-28 20:37:40,101 - TradingBot - INFO -   BTC/USD: 49247.91
+2025-03-28 20:37:40,103 - TradingBot - INFO -   ETH/USD: 2921.00
+2025-03-28 20:37:40,116 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:37:40,121 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:37:40,123 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:37:40,134 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:37:40,146 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:37:40,153 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:37:40,159 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:37:40,164 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:37:40,167 - TradingBotExample - INFO - Waiting for 5 seconds...
+2025-03-28 20:37:45,168 - TradingBotExample - INFO - Iteration 3/5
+2025-03-28 20:37:45,168 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:37:45,169 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:37:45,169 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:37:45,170 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:37:45,170 - TradingBotExample - INFO - Generated signals:
+2025-03-28 20:37:45,170 - TradingBotExample - INFO -   BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:37:45,170 - TradingBotExample - INFO -   ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:37:45,172 - TradingBot - INFO - Executing trades...
+2025-03-28 20:37:45,172 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:37:45,173 - TradingBot - INFO - Current Prices:
+2025-03-28 20:37:45,174 - TradingBot - INFO -   BTC/USD: 49247.91
+2025-03-28 20:37:45,174 - TradingBot - INFO -   ETH/USD: 2921.00
+2025-03-28 20:37:45,174 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:37:45,174 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:37:45,175 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:37:45,175 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:37:45,175 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:37:45,176 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:37:45,176 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:37:45,176 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:37:45,177 - TradingBotExample - INFO - Waiting for 5 seconds...
+2025-03-28 20:37:50,178 - TradingBotExample - INFO - Iteration 4/5
+2025-03-28 20:37:50,178 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:37:50,179 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:37:50,179 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:37:50,179 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:37:50,179 - TradingBotExample - INFO - Generated signals:
+2025-03-28 20:37:50,181 - TradingBotExample - INFO -   BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:37:50,181 - TradingBotExample - INFO -   ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:37:50,181 - TradingBot - INFO - Executing trades...
+2025-03-28 20:37:50,182 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:37:50,182 - TradingBot - INFO - Current Prices:
+2025-03-28 20:37:50,182 - TradingBot - INFO -   BTC/USD: 49247.91
+2025-03-28 20:37:50,183 - TradingBot - INFO -   ETH/USD: 2921.00
+2025-03-28 20:37:50,183 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:37:50,183 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:37:50,184 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:37:50,184 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:37:50,184 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:37:50,185 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:37:50,185 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:37:50,185 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:37:50,185 - TradingBotExample - INFO - Waiting for 5 seconds...
+2025-03-28 20:37:55,187 - TradingBotExample - INFO - Iteration 5/5
+2025-03-28 20:37:55,187 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:37:55,188 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:37:55,188 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:37:55,188 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:37:55,188 - TradingBotExample - INFO - Generated signals:
+2025-03-28 20:37:55,188 - TradingBotExample - INFO -   BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:37:55,189 - TradingBotExample - INFO -   ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:37:55,189 - TradingBot - INFO - Executing trades...
+2025-03-28 20:37:55,189 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:37:55,189 - TradingBot - INFO - Current Prices:
+2025-03-28 20:37:55,190 - TradingBot - INFO -   BTC/USD: 49247.91
+2025-03-28 20:37:55,190 - TradingBot - INFO -   ETH/USD: 2921.00
+2025-03-28 20:37:55,190 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:37:55,191 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:37:55,191 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:37:55,191 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:37:55,191 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:37:55,191 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:37:55,193 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:37:55,193 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:37:55,194 - TradingBotExample - INFO - Demo completed successfully
+2025-03-28 20:37:55,195 - TradingBotExample - INFO - Comprehensive demo completed

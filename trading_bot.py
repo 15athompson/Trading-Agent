@@ -12,12 +12,15 @@ from datetime import datetime
 import json
 import os
 import argparse
+import importlib
+import sys
 
 # Import custom modules
 from data_fetcher import create_data_fetcher
 from strategies import create_strategy
 from risk_manager import RiskManager
 from portfolio_manager import PortfolioManager
+from notification_system import NotificationSystem
 
 # Configure logging
 logging.basicConfig(
@@ -35,12 +38,13 @@ class TradingBot:
     Main trading bot class that handles data fetching, analysis, and trade execution.
     """
 
-    def __init__(self, config_path="config.json"):
+    def __init__(self, config_path="config.json", notification_config_path="notification_config.json"):
         """
         Initialize the trading bot with configuration.
 
         Args:
             config_path (str): Path to the configuration file
+            notification_config_path (str): Path to the notification configuration file
         """
         self.config = self._load_config(config_path)
         self.market_data = {}
@@ -51,11 +55,24 @@ class TradingBot:
         self.data_fetcher = create_data_fetcher(self.config["api"])
         self.risk_manager = RiskManager(self.config["trading"]["risk_management"])
         self.portfolio_manager = PortfolioManager()
+        self.notification_system = NotificationSystem(notification_config_path)
 
         # Initialize strategies
         self.strategies = []
         strategy_name = self.config["trading"]["strategy"]
         strategy_params = self.config["trading"].get("strategy_params", {})
+
+        # Check if we need to import ML strategy
+        if strategy_name in ["ml_strategy", "ml_ensemble"]:
+            try:
+                # Try to import the ML strategy module
+                if "ml_strategy" not in sys.modules:
+                    importlib.import_module("ml_strategy")
+                logger.info("ML strategy module imported successfully")
+            except ImportError:
+                logger.warning("ML strategy module not found. Falling back to SMA strategy.")
+                strategy_name = "simple_moving_average"
+
         self.strategies.append(create_strategy(strategy_name, strategy_params))
 
         logger.info("Trading bot initialized with strategy: " + strategy_name)
@@ -111,7 +128,9 @@ class TradingBot:
             },
             "bot_settings": {
                 "update_interval": 60,  # seconds
-                "backtest_mode": False
+                "backtest_mode": False,
+                "use_ml": False,
+                "use_notifications": True
             }
         }
 
@@ -213,6 +232,15 @@ class TradingBot:
                     logger.info(f"Opened LONG position for {symbol} at {current_price:.2f} "
                                f"with size {position_size:.6f} and confidence {confidence:.2f}")
 
+                    # Send notification
+                    trade_details = {
+                        "symbol": symbol,
+                        "action": "buy",
+                        "price": current_price,
+                        "size": position_size
+                    }
+                    self.notification_system.notify_trade_executed(trade_details)
+
             elif action == "sell" and has_position:
                 # Close the position
                 position = self.portfolio_manager.get_position(symbol)
@@ -221,6 +249,19 @@ class TradingBot:
                     if success:
                         logger.info(f"Closed LONG position for {symbol} at {current_price:.2f} "
                                    f"with P&L {pnl:.2f}")
+
+                        # Send notification
+                        position_details = {
+                            "symbol": symbol,
+                            "type": "long",
+                            "entry_price": position["entry_price"],
+                            "exit_price": current_price,
+                            "size": position["size"],
+                            "pnl": pnl,
+                            "pnl_percent": (pnl / (position["entry_price"] * position["size"])) * 100,
+                            "reason": "signal"
+                        }
+                        self.notification_system.notify_position_closed(position_details)
 
             elif action == "sell" and not has_position and confidence > 0.2:
                 # For simplicity, we're not implementing short selling in this example
@@ -237,6 +278,25 @@ class TradingBot:
                     if success:
                         logger.info(f"Closed position for {symbol} at {current_price:.2f} "
                                    f"with P&L {pnl:.2f} due to {reason}")
+
+                        # Send notification
+                        position_details = {
+                            "symbol": symbol,
+                            "type": position["type"],
+                            "entry_price": position["entry_price"],
+                            "exit_price": current_price,
+                            "size": position["size"],
+                            "pnl": pnl,
+                            "pnl_percent": (pnl / (position["entry_price"] * position["size"])) * 100,
+                            "reason": reason
+                        }
+
+                        if reason == "stop_loss":
+                            self.notification_system.notify_stop_loss_triggered(position)
+                        elif reason == "take_profit":
+                            self.notification_system.notify_take_profit_triggered(position)
+
+                        self.notification_system.notify_position_closed(position_details)
                 else:
                     # Update trailing stop if applicable
                     updated_position = self.risk_manager.update_trailing_stop(position, current_price)
@@ -296,6 +356,9 @@ class TradingBot:
         self.running = True
         logger.info("Trading bot started")
 
+        # Send notification
+        self.notification_system.notify_bot_started()
+
         try:
             while self.running:
                 self.fetch_market_data()
@@ -312,9 +375,13 @@ class TradingBot:
             logger.info("Trading bot stopped by user")
         except Exception as e:
             logger.error(f"Error in trading bot: {e}", exc_info=True)
+            # Send error notification
+            self.notification_system.notify_error(str(e))
         finally:
             self.running = False
             logger.info("Trading bot stopped")
+            # Send notification
+            self.notification_system.notify_bot_stopped()
 
     def stop(self):
         """
@@ -334,8 +401,20 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description="Trading AI Agent Bot")
     parser.add_argument("--config", "-c", type=str, default="config.json",
                         help="Path to configuration file")
+    parser.add_argument("--notification-config", "-n", type=str, default="notification_config.json",
+                        help="Path to notification configuration file")
     parser.add_argument("--verbose", "-v", action="store_true",
                         help="Enable verbose logging")
+    parser.add_argument("--backtest", "-b", action="store_true",
+                        help="Run in backtest mode")
+    parser.add_argument("--backtest-start", type=str, default=None,
+                        help="Start date for backtesting (format: YYYY-MM-DD)")
+    parser.add_argument("--backtest-end", type=str, default=None,
+                        help="End date for backtesting (format: YYYY-MM-DD)")
+    parser.add_argument("--dashboard", "-d", action="store_true",
+                        help="Start the web dashboard")
+    parser.add_argument("--dashboard-port", type=int, default=8050,
+                        help="Port for the web dashboard")
 
     return parser.parse_args()
 
@@ -347,6 +426,48 @@ if __name__ == "__main__":
     if args.verbose:
         logging.getLogger("TradingBot").setLevel(logging.DEBUG)
 
-    # Create and run the trading bot
-    bot = TradingBot(args.config)
-    bot.run()
+    # Check if we should run in backtest mode
+    if args.backtest:
+        try:
+            # Import backtesting module
+            from backtesting import run_backtest
+
+            # Run backtest
+            logger.info("Running in backtest mode")
+            results = run_backtest(
+                config_path=args.config,
+                start_date=args.backtest_start,
+                end_date=args.backtest_end
+            )
+
+            logger.info(f"Backtest completed with {results['total_return_pct']:.2f}% return")
+
+        except ImportError:
+            logger.error("Backtesting module not found. Please make sure backtesting.py is available.")
+            sys.exit(1)
+
+    # Check if we should start the dashboard
+    elif args.dashboard:
+        try:
+            # Import dashboard module
+            from dashboard import TradingBotDashboard
+
+            # Start dashboard
+            logger.info(f"Starting dashboard on port {args.dashboard_port}")
+            dashboard = TradingBotDashboard(
+                config_path=args.config,
+                port=args.dashboard_port,
+                debug=args.verbose
+            )
+
+            dashboard.run()
+
+        except ImportError:
+            logger.error("Dashboard module not found. Please make sure dashboard.py is available.")
+            sys.exit(1)
+
+    # Otherwise, run the trading bot normally
+    else:
+        # Create and run the trading bot
+        bot = TradingBot(args.config, args.notification_config)
+        bot.run()
