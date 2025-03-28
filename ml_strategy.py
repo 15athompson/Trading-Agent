@@ -1,29 +1,23 @@
+#!/usr/bin/env python3
 """
-Machine Learning Strategy Module
+Machine Learning Strategies for Trading Bot
 
-This module implements trading strategies based on machine learning models.
+This module provides machine learning-based trading strategies.
 """
 
-import logging
-import numpy as np
-import pandas as pd
-from datetime import datetime
 import os
+import logging
+import json
+import numpy as np
 import pickle
-import joblib
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-
+from datetime import datetime
 from strategies import Strategy
 
-logger = logging.getLogger("TradingBot.MLStrategy")
+logger = logging.getLogger("TradingBot.Strategies")
 
 class MLStrategy(Strategy):
     """
-    Machine Learning strategy base class.
+    Machine Learning strategy that uses trained models to predict price movements.
     """
     
     def __init__(self, params=None):
@@ -35,16 +29,14 @@ class MLStrategy(Strategy):
         """
         default_params = {
             "model_type": "random_forest",
-            "prediction_horizon": 5,  # Days to predict ahead
-            "feature_window": 20,  # Days of history to use for features
-            "confidence_threshold": 0.6,  # Minimum confidence for signals
-            "retrain_interval": 30,  # Days between model retraining
-            "model_path": "models"  # Directory to save trained models
+            "prediction_horizon": 5,
+            "feature_window": 20,
+            "confidence_threshold": 0.6,
+            "retrain_interval": 30,
+            "model_path": "models"
         }
-        
         super().__init__(params or default_params)
         self.name = "ml_strategy"
-        
         self.model_type = self.params.get("model_type", "random_forest")
         self.prediction_horizon = self.params.get("prediction_horizon", 5)
         self.feature_window = self.params.get("feature_window", 20)
@@ -53,12 +45,13 @@ class MLStrategy(Strategy):
         self.model_path = self.params.get("model_path", "models")
         
         # Create model directory if it doesn't exist
-        if not os.path.exists(self.model_path):
-            os.makedirs(self.model_path)
+        os.makedirs(self.model_path, exist_ok=True)
         
-        # Initialize models dictionary
+        # Dictionary to store models for each symbol
         self.models = {}
-        self.last_trained = {}
+        
+        # Dictionary to store last training date for each symbol
+        self.last_training = {}
         
         logger.info(f"ML Strategy initialized with model_type={self.model_type}, "
                    f"prediction_horizon={self.prediction_horizon}, "
@@ -66,7 +59,7 @@ class MLStrategy(Strategy):
     
     def _get_model_path(self, symbol):
         """
-        Get the path to save/load the model for a symbol.
+        Get the path to the model file for a symbol.
         
         Args:
             symbol (str): Trading symbol
@@ -74,48 +67,9 @@ class MLStrategy(Strategy):
         Returns:
             str: Path to the model file
         """
-        # Replace / with _ in symbol name for filename
+        # Replace / with _ in symbol name for file path
         safe_symbol = symbol.replace("/", "_")
         return os.path.join(self.model_path, f"{safe_symbol}_{self.model_type}_model.pkl")
-    
-    def _create_model(self):
-        """
-        Create a new machine learning model.
-        
-        Returns:
-            object: Machine learning model
-        """
-        if self.model_type == "random_forest":
-            model = Pipeline([
-                ('scaler', StandardScaler()),
-                ('classifier', RandomForestClassifier(
-                    n_estimators=100,
-                    max_depth=10,
-                    random_state=42
-                ))
-            ])
-        elif self.model_type == "gradient_boosting":
-            model = Pipeline([
-                ('scaler', StandardScaler()),
-                ('classifier', GradientBoostingClassifier(
-                    n_estimators=100,
-                    max_depth=5,
-                    learning_rate=0.1,
-                    random_state=42
-                ))
-            ])
-        else:
-            logger.warning(f"Unknown model type: {self.model_type}, using random forest")
-            model = Pipeline([
-                ('scaler', StandardScaler()),
-                ('classifier', RandomForestClassifier(
-                    n_estimators=100,
-                    max_depth=10,
-                    random_state=42
-                ))
-            ])
-        
-        return model
     
     def _load_model(self, symbol):
         """
@@ -125,20 +79,22 @@ class MLStrategy(Strategy):
             symbol (str): Trading symbol
             
         Returns:
-            object: Trained machine learning model or None if not found
+            object: Trained model or None if not found
         """
         model_path = self._get_model_path(symbol)
         
-        if os.path.exists(model_path):
-            try:
-                model = joblib.load(model_path)
-                logger.info(f"Loaded trained model for {symbol} from {model_path}")
+        try:
+            if os.path.exists(model_path):
+                with open(model_path, 'rb') as f:
+                    model = pickle.load(f)
+                logger.info(f"Loaded model for {symbol} from {model_path}")
                 return model
-            except Exception as e:
-                logger.error(f"Failed to load model for {symbol}: {e}")
-        
-        logger.info(f"No trained model found for {symbol}, creating new model")
-        return self._create_model()
+            else:
+                logger.warning(f"No trained model found for {symbol}")
+                return None
+        except Exception as e:
+            logger.error(f"Failed to load model for {symbol}: {e}")
+            return None
     
     def _save_model(self, symbol, model):
         """
@@ -146,16 +102,17 @@ class MLStrategy(Strategy):
         
         Args:
             symbol (str): Trading symbol
-            model (object): Trained machine learning model
+            model (object): Trained model
             
         Returns:
-            bool: Whether the model was successfully saved
+            bool: Whether the model was saved successfully
         """
         model_path = self._get_model_path(symbol)
         
         try:
-            joblib.dump(model, model_path)
-            logger.info(f"Saved trained model for {symbol} to {model_path}")
+            with open(model_path, 'wb') as f:
+                pickle.dump(model, f)
+            logger.info(f"Saved model for {symbol} to {model_path}")
             return True
         except Exception as e:
             logger.error(f"Failed to save model for {symbol}: {e}")
@@ -163,172 +120,122 @@ class MLStrategy(Strategy):
     
     def _extract_features(self, data):
         """
-        Extract features from market data for machine learning.
+        Extract features from market data.
         
         Args:
-            data (dict): Market data
+            data (dict): Market data for a symbol
             
         Returns:
-            pandas.DataFrame: Features for machine learning
+            tuple: (features, labels) or (features, None) if labels cannot be generated
         """
-        if "historical_prices" not in data or len(data["historical_prices"]) < self.feature_window:
-            logger.warning(f"Not enough historical data to extract features")
+        if "historical_prices" not in data or len(data["historical_prices"]) < self.feature_window + self.prediction_horizon:
+            logger.warning("Not enough historical data to extract features")
+            return None, None
+        
+        prices = data["historical_prices"]
+        features = []
+        labels = []
+        
+        # Generate features and labels from historical prices
+        for i in range(len(prices) - self.feature_window - self.prediction_horizon + 1):
+            # Extract window of prices for features
+            window = prices[i:i+self.feature_window]
+            
+            # Calculate features
+            feature_vector = self._calculate_features(window)
+            features.append(feature_vector)
+            
+            # Calculate label (price direction after prediction_horizon days)
+            current_price = prices[i+self.feature_window-1]
+            future_price = prices[i+self.feature_window+self.prediction_horizon-1]
+            
+            # 1 if price goes up, 0 if it goes down
+            label = 1 if future_price > current_price else 0
+            labels.append(label)
+        
+        return np.array(features), np.array(labels)
+    
+    def _calculate_features(self, prices):
+        """
+        Calculate features from a window of prices.
+        
+        Args:
+            prices (list): Window of historical prices
+            
+        Returns:
+            list: Feature vector
+        """
+        features = []
+        
+        # Price changes
+        price_changes = np.diff(prices) / prices[:-1]
+        features.extend([
+            np.mean(price_changes),
+            np.std(price_changes),
+            np.min(price_changes),
+            np.max(price_changes)
+        ])
+        
+        # Moving averages
+        ma_5 = np.mean(prices[-5:]) if len(prices) >= 5 else np.mean(prices)
+        ma_10 = np.mean(prices[-10:]) if len(prices) >= 10 else np.mean(prices)
+        ma_20 = np.mean(prices[-20:]) if len(prices) >= 20 else np.mean(prices)
+        
+        features.extend([
+            prices[-1] / ma_5 - 1,  # Price relative to 5-day MA
+            prices[-1] / ma_10 - 1,  # Price relative to 10-day MA
+            prices[-1] / ma_20 - 1,  # Price relative to 20-day MA
+            ma_5 / ma_10 - 1,  # 5-day MA relative to 10-day MA
+            ma_5 / ma_20 - 1,  # 5-day MA relative to 20-day MA
+            ma_10 / ma_20 - 1  # 10-day MA relative to 20-day MA
+        ])
+        
+        # Volatility
+        volatility_5 = np.std(price_changes[-5:]) if len(price_changes) >= 5 else np.std(price_changes)
+        volatility_10 = np.std(price_changes[-10:]) if len(price_changes) >= 10 else np.std(price_changes)
+        volatility_20 = np.std(price_changes[-20:]) if len(price_changes) >= 20 else np.std(price_changes)
+        
+        features.extend([
+            volatility_5,
+            volatility_10,
+            volatility_20,
+            volatility_5 / volatility_20 if volatility_20 > 0 else 0
+        ])
+        
+        return features
+    
+    def _create_model(self):
+        """
+        Create a new machine learning model.
+        
+        Returns:
+            object: Machine learning model
+        """
+        try:
+            if self.model_type == "random_forest":
+                from sklearn.ensemble import RandomForestClassifier
+                return RandomForestClassifier(n_estimators=100, random_state=42)
+            
+            elif self.model_type == "gradient_boosting":
+                from sklearn.ensemble import GradientBoostingClassifier
+                return GradientBoostingClassifier(n_estimators=100, random_state=42)
+            
+            elif self.model_type == "svm":
+                from sklearn.svm import SVC
+                return SVC(probability=True, random_state=42)
+            
+            elif self.model_type == "logistic_regression":
+                from sklearn.linear_model import LogisticRegression
+                return LogisticRegression(random_state=42)
+            
+            else:
+                logger.warning(f"Unknown model type: {self.model_type}. Using random forest.")
+                from sklearn.ensemble import RandomForestClassifier
+                return RandomForestClassifier(n_estimators=100, random_state=42)
+        
+        except ImportError:
+            logger.error("scikit-learn is not installed. Please install it to use ML strategies.")
             return None
-        
-        # Get price data
-        prices = np.array(data["historical_prices"])
-        timestamps = np.array(data["timestamps"])
-        
-        if "opens" in data and "highs" in data and "lows" in data and "closes" in data and "volumes" in data:
-            opens = np.array(data["opens"])
-            highs = np.array(data["highs"])
-            lows = np.array(data["lows"])
-            closes = np.array(data["closes"])
-            volumes = np.array(data["volumes"])
-        else:
-            # If OHLCV data is not available, use prices for all
-            opens = prices
-            highs = prices
-            lows = prices
-            closes = prices
-            volumes = np.ones_like(prices) * 1000  # Default volume
-        
-        # Create DataFrame
-        df = pd.DataFrame({
-            'timestamp': timestamps,
-            'open': opens,
-            'high': highs,
-            'low': lows,
-            'close': closes,
-            'volume': volumes
-        })
-        
-        # Calculate technical indicators
-        df = self._calculate_indicators(df)
-        
-        # Drop NaN values
-        df.dropna(inplace=True)
-        
-        return df
-    
-    def _calculate_indicators(self, df):
-        """
-        Calculate technical indicators for feature engineering.
-        
-        Args:
-            df (pandas.DataFrame): Price data
-            
-        Returns:
-            pandas.DataFrame: Data with technical indicators
-        """
-        # Calculate returns
-        df['return_1d'] = df['close'].pct_change(1)
-        df['return_5d'] = df['close'].pct_change(5)
-        df['return_10d'] = df['close'].pct_change(10)
-        
-        # Calculate moving averages
-        df['sma_5'] = df['close'].rolling(window=5).mean()
-        df['sma_10'] = df['close'].rolling(window=10).mean()
-        df['sma_20'] = df['close'].rolling(window=20).mean()
-        
-        # Calculate exponential moving averages
-        df['ema_5'] = df['close'].ewm(span=5, adjust=False).mean()
-        df['ema_10'] = df['close'].ewm(span=10, adjust=False).mean()
-        df['ema_20'] = df['close'].ewm(span=20, adjust=False).mean()
-        
-        # Calculate moving average convergence divergence (MACD)
-        df['ema_12'] = df['close'].ewm(span=12, adjust=False).mean()
-        df['ema_26'] = df['close'].ewm(span=26, adjust=False).mean()
-        df['macd'] = df['ema_12'] - df['ema_26']
-        df['macd_signal'] = df['macd'].ewm(span=9, adjust=False).mean()
-        df['macd_hist'] = df['macd'] - df['macd_signal']
-        
-        # Calculate relative strength index (RSI)
-        delta = df['close'].diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=14).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=14).mean()
-        rs = gain / loss
-        df['rsi_14'] = 100 - (100 / (1 + rs))
-        
-        # Calculate Bollinger Bands
-        df['bb_middle'] = df['close'].rolling(window=20).mean()
-        df['bb_std'] = df['close'].rolling(window=20).std()
-        df['bb_upper'] = df['bb_middle'] + 2 * df['bb_std']
-        df['bb_lower'] = df['bb_middle'] - 2 * df['bb_std']
-        df['bb_width'] = (df['bb_upper'] - df['bb_lower']) / df['bb_middle']
-        
-        # Calculate Average True Range (ATR)
-        df['tr1'] = df['high'] - df['low']
-        df['tr2'] = abs(df['high'] - df['close'].shift(1))
-        df['tr3'] = abs(df['low'] - df['close'].shift(1))
-        df['true_range'] = df[['tr1', 'tr2', 'tr3']].max(axis=1)
-        df['atr_14'] = df['true_range'].rolling(window=14).mean()
-        
-        # Calculate price relative to moving averages
-        df['price_sma_5_ratio'] = df['close'] / df['sma_5']
-        df['price_sma_10_ratio'] = df['close'] / df['sma_10']
-        df['price_sma_20_ratio'] = df['close'] / df['sma_20']
-        
-        # Calculate moving average crossovers
-        df['sma_5_10_cross'] = (df['sma_5'] > df['sma_10']).astype(int)
-        df['sma_10_20_cross'] = (df['sma_10'] > df['sma_20']).astype(int)
-        
-        # Calculate volume indicators
-        df['volume_sma_5'] = df['volume'].rolling(window=5).mean()
-        df['volume_ratio'] = df['volume'] / df['volume_sma_5']
-        
-        # Drop temporary columns
-        df.drop(['tr1', 'tr2', 'tr3'], axis=1, inplace=True)
-        
-        return df
-    
-    def _prepare_training_data(self, df):
-        """
-        Prepare training data for machine learning.
-        
-        Args:
-            df (pandas.DataFrame): Data with features
-            
-        Returns:
-            tuple: (X, y) - Features and target variables
-        """
-        # Create target variable: 1 if price goes up by 2% or more in the next N days, 0 otherwise
-        future_return = df['close'].pct_change(self.prediction_horizon).shift(-self.prediction_horizon)
-        df['target'] = (future_return > 0.02).astype(int)
-        
-        # Drop rows with NaN target values
-        df.dropna(inplace=True)
-        
-        # Select features
-        feature_columns = [
-            'return_1d', 'return_5d', 'return_10d',
-            'sma_5', 'sma_10', 'sma_20',
-            'ema_5', 'ema_10', 'ema_20',
-            'macd', 'macd_signal', 'macd_hist',
-            'rsi_14',
-            'bb_width',
-            'atr_14',
-            'price_sma_5_ratio', 'price_sma_10_ratio', 'price_sma_20_ratio',
-            'sma_5_10_cross', 'sma_10_20_cross',
-            'volume_ratio'
-        ]
-        
-        # Normalize features by close price to make them scale-invariant
-        price_scale_features = [
-            'sma_5', 'sma_10', 'sma_20',
-            'ema_5', 'ema_10', 'ema_20',
-            'bb_middle', 'bb_upper', 'bb_lower',
-            'atr_14'
-        ]
-        
-        for feature in price_scale_features:
-            if feature in feature_columns:
-                df[feature] = df[feature] / df['close']
-        
-        X = df[feature_columns].values
-        y = df['target'].values
-        
-        return X, y
     
     def train_model(self, symbol, data):
         """
@@ -336,50 +243,38 @@ class MLStrategy(Strategy):
         
         Args:
             symbol (str): Trading symbol
-            data (dict): Market data
+            data (dict): Market data for the symbol
             
         Returns:
-            object: Trained machine learning model or None if training failed
+            object: Trained model or None if training failed
         """
-        logger.info(f"Training model for {symbol}")
+        # Extract features and labels
+        features, labels = self._extract_features(data)
         
-        # Extract features
-        df = self._extract_features(data)
-        if df is None or len(df) < self.feature_window + self.prediction_horizon:
+        if features is None or labels is None or len(features) == 0 or len(labels) == 0:
             logger.warning(f"Not enough data to train model for {symbol}")
             return None
         
-        # Prepare training data
-        X, y = self._prepare_training_data(df)
-        if len(X) == 0 or len(y) == 0:
-            logger.warning(f"Failed to prepare training data for {symbol}")
-            return None
-        
-        # Split data into training and validation sets
-        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
-        
-        # Create and train model
-        model = self._create_model()
-        
         try:
-            model.fit(X_train, y_train)
+            # Create model
+            model = self._create_model()
             
-            # Evaluate model
-            y_pred = model.predict(X_val)
-            accuracy = accuracy_score(y_val, y_pred)
-            precision = precision_score(y_val, y_pred, zero_division=0)
-            recall = recall_score(y_val, y_pred, zero_division=0)
-            f1 = f1_score(y_val, y_pred, zero_division=0)
+            if model is None:
+                return None
             
-            logger.info(f"Model evaluation for {symbol}: "
-                       f"Accuracy={accuracy:.4f}, Precision={precision:.4f}, "
-                       f"Recall={recall:.4f}, F1={f1:.4f}")
+            # Train model
+            model.fit(features, labels)
             
             # Save model
             self._save_model(symbol, model)
             
-            # Update last trained timestamp
-            self.last_trained[symbol] = datetime.now().timestamp()
+            # Update last training date
+            self.last_training[symbol] = datetime.now()
+            
+            # Store model in memory
+            self.models[symbol] = model
+            
+            logger.info(f"Trained model for {symbol} with {len(features)} samples")
             
             return model
         
@@ -387,103 +282,90 @@ class MLStrategy(Strategy):
             logger.error(f"Failed to train model for {symbol}: {e}")
             return None
     
-    def should_retrain(self, symbol, current_timestamp):
+    def _should_retrain(self, symbol):
         """
-        Determine if the model should be retrained.
+        Check if a model should be retrained.
         
         Args:
             symbol (str): Trading symbol
-            current_timestamp (float): Current timestamp
             
         Returns:
             bool: Whether the model should be retrained
         """
-        if symbol not in self.last_trained:
+        # If no model exists, retrain
+        if symbol not in self.models:
             return True
         
-        last_trained = self.last_trained[symbol]
-        days_since_trained = (current_timestamp - last_trained) / (24 * 3600)
+        # If no last training date, retrain
+        if symbol not in self.last_training:
+            return True
         
-        return days_since_trained >= self.retrain_interval
+        # Check if retrain_interval days have passed since last training
+        days_since_training = (datetime.now() - self.last_training[symbol]).days
+        return days_since_training >= self.retrain_interval
     
     def generate_signal(self, symbol, data):
         """
-        Generate a trading signal based on machine learning predictions.
+        Generate a trading signal based on ML predictions.
         
         Args:
             symbol (str): Trading symbol
-            data (dict): Market data
+            data (dict): Market data for the symbol
             
         Returns:
             dict: Trading signal
         """
-        # Check if we have enough data
+        # Check if we need to load or train a model
+        if symbol not in self.models:
+            # Try to load model
+            model = self._load_model(symbol)
+            
+            if model is None:
+                # Train new model
+                model = self.train_model(symbol, data)
+            
+            if model is None:
+                # If still no model, use base strategy
+                logger.warning(f"No ML model available for {symbol}. Using base strategy.")
+                return super().generate_signal(symbol, data)
+            
+            self.models[symbol] = model
+        
+        # Check if we should retrain the model
+        if self._should_retrain(symbol):
+            logger.info(f"Retraining model for {symbol}")
+            model = self.train_model(symbol, data)
+            
+            if model is None:
+                # If training fails, use existing model
+                model = self.models[symbol]
+        else:
+            model = self.models[symbol]
+        
+        # Extract features for prediction
         if "historical_prices" not in data or len(data["historical_prices"]) < self.feature_window:
             logger.warning(f"Not enough historical data for {symbol} to generate ML signal")
             return super().generate_signal(symbol, data)
         
-        current_timestamp = data.get("timestamps", [datetime.now().timestamp()])[-1]
+        prices = data["historical_prices"]
+        window = prices[-self.feature_window:]
+        features = [self._calculate_features(window)]
         
-        # Load or train model
-        if symbol not in self.models or self.should_retrain(symbol, current_timestamp):
-            if self.should_retrain(symbol, current_timestamp):
-                logger.info(f"Retraining model for {symbol}")
-            
-            model = self.train_model(symbol, data)
-            if model is not None:
-                self.models[symbol] = model
-            elif symbol not in self.models:
-                self.models[symbol] = self._load_model(symbol)
-        
-        model = self.models[symbol]
-        
-        # Extract features for prediction
-        df = self._extract_features(data)
-        if df is None or len(df) == 0:
-            logger.warning(f"Failed to extract features for {symbol}")
-            return super().generate_signal(symbol, data)
-        
-        # Select the most recent data point for prediction
-        feature_columns = [
-            'return_1d', 'return_5d', 'return_10d',
-            'sma_5', 'sma_10', 'sma_20',
-            'ema_5', 'ema_10', 'ema_20',
-            'macd', 'macd_signal', 'macd_hist',
-            'rsi_14',
-            'bb_width',
-            'atr_14',
-            'price_sma_5_ratio', 'price_sma_10_ratio', 'price_sma_20_ratio',
-            'sma_5_10_cross', 'sma_10_20_cross',
-            'volume_ratio'
-        ]
-        
-        # Normalize features by close price
-        price_scale_features = [
-            'sma_5', 'sma_10', 'sma_20',
-            'ema_5', 'ema_10', 'ema_20',
-            'bb_middle', 'bb_upper', 'bb_lower',
-            'atr_14'
-        ]
-        
-        for feature in price_scale_features:
-            if feature in feature_columns:
-                df[feature] = df[feature] / df['close']
-        
-        # Get the latest data point
-        latest_features = df[feature_columns].iloc[-1].values.reshape(1, -1)
-        
-        # Make prediction
         try:
-            prediction = model.predict(latest_features)[0]
-            confidence = model.predict_proba(latest_features)[0][prediction]
+            # Make prediction
+            prediction = model.predict(features)[0]
             
-            # Generate signal based on prediction
-            if prediction == 1 and confidence >= self.confidence_threshold:
-                action = "buy"
-            elif prediction == 0 and confidence >= self.confidence_threshold:
-                action = "sell"
-            else:
+            # Get prediction probability
+            prediction_proba = model.predict_proba(features)[0]
+            confidence = prediction_proba[prediction]
+            
+            # Generate signal
+            action = "buy" if prediction == 1 else "sell"
+            
+            # Only generate a signal if confidence is above threshold
+            if confidence < self.confidence_threshold:
                 action = "hold"
+                confidence = 0.0
             
             logger.info(f"ML Signal for {symbol}: {action.upper()} with confidence {confidence:.2f}")
             
@@ -491,15 +373,16 @@ class MLStrategy(Strategy):
                 "symbol": symbol,
                 "action": action,
                 "confidence": confidence,
-                "timestamp": current_timestamp,
+                "timestamp": data.get("timestamp", 0),
                 "metrics": {
-                    "prediction": int(prediction),
-                    "confidence": float(confidence)
+                    "prediction": prediction,
+                    "prediction_proba": prediction_proba.tolist(),
+                    "model_type": self.model_type
                 }
             }
         
         except Exception as e:
-            logger.error(f"Failed to generate prediction for {symbol}: {e}")
+            logger.error(f"Failed to generate ML signal for {symbol}: {e}")
             return super().generate_signal(symbol, data)
 
 
@@ -524,22 +407,23 @@ class MLEnsembleStrategy(MLStrategy):
             "model_path": "models"
         }
         
+        # Call parent constructor with default params
         super().__init__(params or default_params)
+        
+        # Override name and model_type
         self.name = "ml_ensemble"
+        self.models_list = self.params.get("models", ["random_forest", "gradient_boosting"])
         
-        self.model_types = self.params.get("models", ["random_forest", "gradient_boosting"])
+        # Dictionary to store ensemble models for each symbol
+        self.ensemble_models = {}
         
-        # Initialize models dictionary for each model type
-        self.models = {model_type: {} for model_type in self.model_types}
-        self.last_trained = {model_type: {} for model_type in self.model_types}
-        
-        logger.info(f"ML Ensemble Strategy initialized with models={self.model_types}, "
+        logger.info(f"ML Ensemble Strategy initialized with models={self.models_list}, "
                    f"prediction_horizon={self.prediction_horizon}, "
                    f"feature_window={self.feature_window}")
     
     def _get_model_path(self, symbol, model_type):
         """
-        Get the path to save/load the model for a symbol and model type.
+        Get the path to the model file for a symbol and model type.
         
         Args:
             symbol (str): Trading symbol
@@ -548,268 +432,317 @@ class MLEnsembleStrategy(MLStrategy):
         Returns:
             str: Path to the model file
         """
-        # Replace / with _ in symbol name for filename
+        # Replace / with _ in symbol name for file path
         safe_symbol = symbol.replace("/", "_")
         return os.path.join(self.model_path, f"{safe_symbol}_{model_type}_model.pkl")
     
-    def _load_model(self, symbol, model_type):
+    def _load_ensemble_models(self, symbol):
         """
-        Load a trained model for a symbol and model type.
+        Load trained ensemble models for a symbol.
         
         Args:
             symbol (str): Trading symbol
-            model_type (str): Type of model
             
         Returns:
-            object: Trained machine learning model or None if not found
+            dict: Dictionary of trained models or empty dict if none found
         """
-        model_path = self._get_model_path(symbol, model_type)
+        ensemble = {}
         
-        if os.path.exists(model_path):
+        for model_type in self.models_list:
+            model_path = self._get_model_path(symbol, model_type)
+            
             try:
-                model = joblib.load(model_path)
-                logger.info(f"Loaded trained {model_type} model for {symbol} from {model_path}")
-                return model
+                if os.path.exists(model_path):
+                    with open(model_path, 'rb') as f:
+                        model = pickle.load(f)
+                    logger.info(f"Loaded {model_type} model for {symbol} from {model_path}")
+                    ensemble[model_type] = model
+                else:
+                    logger.warning(f"No trained {model_type} model found for {symbol}")
             except Exception as e:
                 logger.error(f"Failed to load {model_type} model for {symbol}: {e}")
         
-        logger.info(f"No trained {model_type} model found for {symbol}, creating new model")
-        
-        # Set the model type temporarily for creating the model
-        original_model_type = self.model_type
-        self.model_type = model_type
-        model = self._create_model()
-        self.model_type = original_model_type
-        
-        return model
+        return ensemble
     
-    def _save_model(self, symbol, model, model_type):
+    def _save_ensemble_models(self, symbol, ensemble):
         """
-        Save a trained model for a symbol and model type.
+        Save trained ensemble models for a symbol.
         
         Args:
             symbol (str): Trading symbol
-            model (object): Trained machine learning model
-            model_type (str): Type of model
+            ensemble (dict): Dictionary of trained models
             
         Returns:
-            bool: Whether the model was successfully saved
+            bool: Whether all models were saved successfully
         """
-        model_path = self._get_model_path(symbol, model_type)
+        success = True
+        
+        for model_type, model in ensemble.items():
+            model_path = self._get_model_path(symbol, model_type)
+            
+            try:
+                with open(model_path, 'wb') as f:
+                    pickle.dump(model, f)
+                logger.info(f"Saved {model_type} model for {symbol} to {model_path}")
+            except Exception as e:
+                logger.error(f"Failed to save {model_type} model for {symbol}: {e}")
+                success = False
+        
+        return success
+    
+    def _create_model(self, model_type):
+        """
+        Create a new machine learning model of the specified type.
+        
+        Args:
+            model_type (str): Type of model to create
+            
+        Returns:
+            object: Machine learning model
+        """
+        try:
+            if model_type == "random_forest":
+                from sklearn.ensemble import RandomForestClassifier
+                return RandomForestClassifier(n_estimators=100, random_state=42)
+            
+            elif model_type == "gradient_boosting":
+                from sklearn.ensemble import GradientBoostingClassifier
+                return GradientBoostingClassifier(n_estimators=100, random_state=42)
+            
+            elif model_type == "svm":
+                from sklearn.svm import SVC
+                return SVC(probability=True, random_state=42)
+            
+            elif model_type == "logistic_regression":
+                from sklearn.linear_model import LogisticRegression
+                return LogisticRegression(random_state=42)
+            
+            else:
+                logger.warning(f"Unknown model type: {model_type}. Using random forest.")
+                from sklearn.ensemble import RandomForestClassifier
+                return RandomForestClassifier(n_estimators=100, random_state=42)
+        
+        except ImportError:
+            logger.error("scikit-learn is not installed. Please install it to use ML strategies.")
+            return None
+    
+    def train_model(self, symbol, data):
+        """
+        Train ensemble models for a symbol.
+        
+        Args:
+            symbol (str): Trading symbol
+            data (dict): Market data for the symbol
+            
+        Returns:
+            dict: Dictionary of trained models or None if training failed
+        """
+        # Extract features and labels
+        features, labels = self._extract_features(data)
+        
+        if features is None or labels is None or len(features) == 0 or len(labels) == 0:
+            logger.warning(f"Not enough data to train ensemble models for {symbol}")
+            return None
         
         try:
-            joblib.dump(model, model_path)
-            logger.info(f"Saved trained {model_type} model for {symbol} to {model_path}")
-            return True
-        except Exception as e:
-            logger.error(f"Failed to save {model_type} model for {symbol}: {e}")
-            return False
-    
-    def train_model(self, symbol, data, model_type):
-        """
-        Train a machine learning model for a symbol and model type.
-        
-        Args:
-            symbol (str): Trading symbol
-            data (dict): Market data
-            model_type (str): Type of model
+            ensemble = {}
             
-        Returns:
-            object: Trained machine learning model or None if training failed
-        """
-        logger.info(f"Training {model_type} model for {symbol}")
-        
-        # Extract features
-        df = self._extract_features(data)
-        if df is None or len(df) < self.feature_window + self.prediction_horizon:
-            logger.warning(f"Not enough data to train {model_type} model for {symbol}")
-            return None
-        
-        # Prepare training data
-        X, y = self._prepare_training_data(df)
-        if len(X) == 0 or len(y) == 0:
-            logger.warning(f"Failed to prepare training data for {model_type} model for {symbol}")
-            return None
-        
-        # Split data into training and validation sets
-        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
-        
-        # Set the model type temporarily for creating the model
-        original_model_type = self.model_type
-        self.model_type = model_type
-        model = self._create_model()
-        self.model_type = original_model_type
-        
-        try:
-            model.fit(X_train, y_train)
+            # Train each model in the ensemble
+            for model_type in self.models_list:
+                # Create model
+                model = self._create_model(model_type)
+                
+                if model is None:
+                    continue
+                
+                # Train model
+                model.fit(features, labels)
+                
+                # Add to ensemble
+                ensemble[model_type] = model
             
-            # Evaluate model
-            y_pred = model.predict(X_val)
-            accuracy = accuracy_score(y_val, y_pred)
-            precision = precision_score(y_val, y_pred, zero_division=0)
-            recall = recall_score(y_val, y_pred, zero_division=0)
-            f1 = f1_score(y_val, y_pred, zero_division=0)
+            if not ensemble:
+                logger.warning(f"Failed to train any models for {symbol}")
+                return None
             
-            logger.info(f"{model_type} model evaluation for {symbol}: "
-                       f"Accuracy={accuracy:.4f}, Precision={precision:.4f}, "
-                       f"Recall={recall:.4f}, F1={f1:.4f}")
+            # Save ensemble
+            self._save_ensemble_models(symbol, ensemble)
             
-            # Save model
-            self._save_model(symbol, model, model_type)
+            # Update last training date
+            self.last_training[symbol] = datetime.now()
             
-            # Update last trained timestamp
-            self.last_trained[model_type][symbol] = datetime.now().timestamp()
+            # Store ensemble in memory
+            self.ensemble_models[symbol] = ensemble
             
-            return model
+            logger.info(f"Trained ensemble of {len(ensemble)} models for {symbol} with {len(features)} samples")
+            
+            return ensemble
         
         except Exception as e:
-            logger.error(f"Failed to train {model_type} model for {symbol}: {e}")
+            logger.error(f"Failed to train ensemble models for {symbol}: {e}")
             return None
-    
-    def should_retrain(self, symbol, current_timestamp, model_type):
-        """
-        Determine if the model should be retrained.
-        
-        Args:
-            symbol (str): Trading symbol
-            current_timestamp (float): Current timestamp
-            model_type (str): Type of model
-            
-        Returns:
-            bool: Whether the model should be retrained
-        """
-        if symbol not in self.last_trained[model_type]:
-            return True
-        
-        last_trained = self.last_trained[model_type][symbol]
-        days_since_trained = (current_timestamp - last_trained) / (24 * 3600)
-        
-        return days_since_trained >= self.retrain_interval
     
     def generate_signal(self, symbol, data):
         """
-        Generate a trading signal based on ensemble of machine learning predictions.
+        Generate a trading signal based on ensemble predictions.
         
         Args:
             symbol (str): Trading symbol
-            data (dict): Market data
+            data (dict): Market data for the symbol
             
         Returns:
             dict: Trading signal
         """
-        # Check if we have enough data
+        # Check if we need to load or train ensemble models
+        if symbol not in self.ensemble_models:
+            # Try to load ensemble
+            ensemble = self._load_ensemble_models(symbol)
+            
+            if not ensemble:
+                # Train new ensemble
+                ensemble = self.train_model(symbol, data)
+            
+            if not ensemble:
+                # If still no ensemble, use base strategy
+                logger.warning(f"No ML ensemble available for {symbol}. Using base strategy.")
+                return super(MLStrategy, self).generate_signal(symbol, data)
+            
+            self.ensemble_models[symbol] = ensemble
+        
+        # Check if we should retrain the ensemble
+        if self._should_retrain(symbol):
+            logger.info(f"Retraining ensemble for {symbol}")
+            ensemble = self.train_model(symbol, data)
+            
+            if not ensemble:
+                # If training fails, use existing ensemble
+                ensemble = self.ensemble_models[symbol]
+        else:
+            ensemble = self.ensemble_models[symbol]
+        
+        # Extract features for prediction
         if "historical_prices" not in data or len(data["historical_prices"]) < self.feature_window:
-            logger.warning(f"Not enough historical data for {symbol} to generate ML Ensemble signal")
+            logger.warning(f"Not enough historical data for {symbol} to generate ML ensemble signal")
             return super(MLStrategy, self).generate_signal(symbol, data)
         
-        current_timestamp = data.get("timestamps", [datetime.now().timestamp()])[-1]
+        prices = data["historical_prices"]
+        window = prices[-self.feature_window:]
+        features = [self._calculate_features(window)]
         
-        # Load or train models
-        predictions = []
-        confidences = []
-        
-        for model_type in self.model_types:
-            # Check if model needs to be loaded or retrained
-            if (symbol not in self.models[model_type] or 
-                self.should_retrain(symbol, current_timestamp, model_type)):
-                
-                if self.should_retrain(symbol, current_timestamp, model_type):
-                    logger.info(f"Retraining {model_type} model for {symbol}")
-                
-                model = self.train_model(symbol, data, model_type)
-                if model is not None:
-                    self.models[model_type][symbol] = model
-                elif symbol not in self.models[model_type]:
-                    self.models[model_type][symbol] = self._load_model(symbol, model_type)
+        try:
+            # Make predictions with each model
+            predictions = []
+            confidences = []
             
-            model = self.models[model_type][symbol]
-            
-            # Extract features for prediction
-            df = self._extract_features(data)
-            if df is None or len(df) == 0:
-                logger.warning(f"Failed to extract features for {symbol}")
-                continue
-            
-            # Select the most recent data point for prediction
-            feature_columns = [
-                'return_1d', 'return_5d', 'return_10d',
-                'sma_5', 'sma_10', 'sma_20',
-                'ema_5', 'ema_10', 'ema_20',
-                'macd', 'macd_signal', 'macd_hist',
-                'rsi_14',
-                'bb_width',
-                'atr_14',
-                'price_sma_5_ratio', 'price_sma_10_ratio', 'price_sma_20_ratio',
-                'sma_5_10_cross', 'sma_10_20_cross',
-                'volume_ratio'
-            ]
-            
-            # Normalize features by close price
-            price_scale_features = [
-                'sma_5', 'sma_10', 'sma_20',
-                'ema_5', 'ema_10', 'ema_20',
-                'bb_middle', 'bb_upper', 'bb_lower',
-                'atr_14'
-            ]
-            
-            for feature in price_scale_features:
-                if feature in feature_columns:
-                    df[feature] = df[feature] / df['close']
-            
-            # Get the latest data point
-            latest_features = df[feature_columns].iloc[-1].values.reshape(1, -1)
-            
-            # Make prediction
-            try:
-                prediction = model.predict(latest_features)[0]
-                confidence = model.predict_proba(latest_features)[0][prediction]
+            for model_type, model in ensemble.items():
+                prediction = model.predict(features)[0]
+                prediction_proba = model.predict_proba(features)[0]
+                confidence = prediction_proba[prediction]
                 
                 predictions.append(prediction)
                 confidences.append(confidence)
-                
-                logger.debug(f"{model_type} prediction for {symbol}: {prediction} with confidence {confidence:.2f}")
             
-            except Exception as e:
-                logger.error(f"Failed to generate {model_type} prediction for {symbol}: {e}")
-        
-        # If no predictions were made, return default signal
-        if not predictions:
-            return super(MLStrategy, self).generate_signal(symbol, data)
-        
-        # Calculate ensemble prediction
-        # Use weighted voting based on confidence
-        buy_votes = sum(conf for pred, conf in zip(predictions, confidences) if pred == 1)
-        sell_votes = sum(conf for pred, conf in zip(predictions, confidences) if pred == 0)
-        
-        total_votes = buy_votes + sell_votes
-        if total_votes == 0:
-            return super(MLStrategy, self).generate_signal(symbol, data)
-        
-        buy_weight = buy_votes / total_votes
-        sell_weight = sell_votes / total_votes
-        
-        # Generate signal based on ensemble prediction
-        if buy_weight > sell_weight and buy_weight >= self.confidence_threshold:
-            action = "buy"
-            confidence = buy_weight
-        elif sell_weight > buy_weight and sell_weight >= self.confidence_threshold:
-            action = "sell"
-            confidence = sell_weight
-        else:
-            action = "hold"
-            confidence = max(buy_weight, sell_weight)
-        
-        logger.info(f"ML Ensemble Signal for {symbol}: {action.upper()} with confidence {confidence:.2f}")
-        
-        return {
-            "symbol": symbol,
-            "action": action,
-            "confidence": confidence,
-            "timestamp": current_timestamp,
-            "metrics": {
-                "buy_weight": float(buy_weight),
-                "sell_weight": float(sell_weight),
-                "model_predictions": [int(p) for p in predictions],
-                "model_confidences": [float(c) for c in confidences]
+            # Calculate ensemble prediction (majority vote)
+            buy_votes = predictions.count(1)
+            sell_votes = predictions.count(0)
+            
+            if buy_votes > sell_votes:
+                action = "buy"
+                confidence = sum([confidences[i] for i in range(len(predictions)) if predictions[i] == 1]) / buy_votes
+            elif sell_votes > buy_votes:
+                action = "sell"
+                confidence = sum([confidences[i] for i in range(len(predictions)) if predictions[i] == 0]) / sell_votes
+            else:
+                # Tie - use average confidence
+                buy_confidence = sum([confidences[i] for i in range(len(predictions)) if predictions[i] == 1]) / buy_votes if buy_votes > 0 else 0
+                sell_confidence = sum([confidences[i] for i in range(len(predictions)) if predictions[i] == 0]) / sell_votes if sell_votes > 0 else 0
+                
+                if buy_confidence > sell_confidence:
+                    action = "buy"
+                    confidence = buy_confidence
+                else:
+                    action = "sell"
+                    confidence = sell_confidence
+            
+            # Only generate a signal if confidence is above threshold
+            if confidence < self.confidence_threshold:
+                action = "hold"
+                confidence = 0.0
+            
+            logger.info(f"ML Ensemble Signal for {symbol}: {action.upper()} with confidence {confidence:.2f}")
+            
+            return {
+                "symbol": symbol,
+                "action": action,
+                "confidence": confidence,
+                "timestamp": data.get("timestamp", 0),
+                "metrics": {
+                    "buy_votes": buy_votes,
+                    "sell_votes": sell_votes,
+                    "models": list(ensemble.keys())
+                }
             }
-        }
+        
+        except Exception as e:
+            logger.error(f"Failed to generate ML ensemble signal for {symbol}: {e}")
+            return super(MLStrategy, self).generate_signal(symbol, data)
+
+
+if __name__ == "__main__":
+    import argparse
+    
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler()
+        ]
+    )
+    
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="ML Trading Strategies")
+    parser.add_argument("--train", action="store_true",
+                        help="Train ML models")
+    parser.add_argument("--symbol", type=str, default="BTC/USD",
+                        help="Symbol to train model for")
+    parser.add_argument("--model-type", type=str, default="random_forest",
+                        choices=["random_forest", "gradient_boosting", "svm", "logistic_regression", "ensemble"],
+                        help="Type of model to train")
+    
+    args = parser.parse_args()
+    
+    if args.train:
+        logger.info(f"Training {args.model_type} model for {args.symbol}")
+        
+        # Import data fetcher
+        from data_fetcher import DemoDataFetcher
+        
+        # Create data fetcher
+        data_fetcher = DemoDataFetcher({
+            "provider": "demo"
+        })
+        
+        # Fetch historical data
+        data = data_fetcher.fetch_historical_data(args.symbol, "1d", limit=500)
+        
+        if data is None:
+            logger.error(f"Failed to fetch historical data for {args.symbol}")
+            exit(1)
+        
+        # Train model
+        if args.model_type == "ensemble":
+            strategy = MLEnsembleStrategy()
+        else:
+            strategy = MLStrategy({
+                "model_type": args.model_type
+            })
+        
+        model = strategy.train_model(args.symbol, data)
+        
+        if model is not None:
+            logger.info(f"Successfully trained {args.model_type} model for {args.symbol}")
+        else:
+            logger.error(f"Failed to train {args.model_type} model for {args.symbol}")
+    else:
+        logger.info("No action specified. Use --train to train ML models.")

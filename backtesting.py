@@ -1,46 +1,43 @@
+#!/usr/bin/env python3
 """
-Backtesting Module
+Backtesting Module for Trading Bot
 
-This module provides functionality for backtesting trading strategies
-on historical data to evaluate their performance.
+This module provides functionality for backtesting trading strategies.
 """
 
 import logging
 import json
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
 import os
-from copy import deepcopy
-
+import numpy as np
+import pandas as pd
+from datetime import datetime, timedelta
+import matplotlib.pyplot as plt
 from strategies import create_strategy
-from portfolio_manager import PortfolioManager
 from risk_manager import RiskManager
 
 logger = logging.getLogger("TradingBot.Backtesting")
 
 class Backtester:
     """
-    Backtester class for evaluating trading strategies on historical data.
+    Backtester for evaluating trading strategies on historical data.
     """
     
-    def __init__(self, config_path="config.json", output_dir="backtest_results"):
+    def __init__(self, config_path="config.json", initial_balance=10000.0):
         """
         Initialize the backtester with configuration.
         
         Args:
             config_path (str): Path to the configuration file
-            output_dir (str): Directory to save backtest results
+            initial_balance (float): Initial balance for backtesting
         """
         self.config = self._load_config(config_path)
-        self.output_dir = output_dir
+        self.initial_balance = initial_balance
+        self.balance = initial_balance
+        self.positions = {}
+        self.trade_history = []
+        self.portfolio_history = []
         
-        # Create output directory if it doesn't exist
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-        
-        # Initialize components
+        # Initialize risk manager
         self.risk_manager = RiskManager(self.config["trading"]["risk_management"])
         
         # Initialize strategy
@@ -66,216 +63,386 @@ class Backtester:
             logger.info(f"Configuration loaded from {config_path}")
             return config
         except FileNotFoundError:
-            logger.error(f"Configuration file {config_path} not found.")
-            raise
-    
-    def load_historical_data(self, data_path=None, start_date=None, end_date=None):
-        """
-        Load historical data for backtesting.
-        
-        Args:
-            data_path (str): Path to the historical data file
-            start_date (str): Start date for backtesting (format: YYYY-MM-DD)
-            end_date (str): End date for backtesting (format: YYYY-MM-DD)
-            
-        Returns:
-            dict: Historical data for each symbol
-        """
-        if data_path:
-            # Load data from file
-            try:
-                data = pd.read_csv(data_path, parse_dates=['timestamp'])
-                logger.info(f"Loaded historical data from {data_path}")
-            except Exception as e:
-                logger.error(f"Failed to load historical data from {data_path}: {e}")
-                raise
-        else:
-            # Generate synthetic data for demo purposes
-            logger.info("Generating synthetic historical data for backtesting")
-            data = self._generate_synthetic_data(start_date, end_date)
-        
-        # Filter by date range if specified
-        if start_date:
-            start_date = pd.to_datetime(start_date)
-            data = data[data['timestamp'] >= start_date]
-        
-        if end_date:
-            end_date = pd.to_datetime(end_date)
-            data = data[data['timestamp'] <= end_date]
-        
-        # Organize data by symbol
-        symbols = self.config["trading"]["symbols"]
-        historical_data = {}
-        
-        for symbol in symbols:
-            symbol_data = data[data['symbol'] == symbol].copy()
-            if len(symbol_data) == 0:
-                logger.warning(f"No data found for symbol {symbol}")
-                continue
-            
-            # Sort by timestamp
-            symbol_data.sort_values('timestamp', inplace=True)
-            
-            historical_data[symbol] = {
-                "symbol": symbol,
-                "timestamps": symbol_data['timestamp'].tolist(),
-                "historical_prices": symbol_data['close'].tolist(),
-                "opens": symbol_data['open'].tolist(),
-                "highs": symbol_data['high'].tolist(),
-                "lows": symbol_data['low'].tolist(),
-                "closes": symbol_data['close'].tolist(),
-                "volumes": symbol_data['volume'].tolist()
+            logger.warning(f"Configuration file {config_path} not found. Using default configuration.")
+            return {
+                "api": {
+                    "provider": "demo",
+                    "api_key": "YOUR_API_KEY",
+                    "api_secret": "YOUR_API_SECRET"
+                },
+                "trading": {
+                    "symbols": ["BTC/USD", "ETH/USD"],
+                    "interval": "1h",
+                    "strategy": "simple_moving_average",
+                    "strategy_params": {
+                        "short_window": 20,
+                        "long_window": 50
+                    },
+                    "risk_management": {
+                        "max_position_size": 0.1,
+                        "stop_loss": 0.05,
+                        "take_profit": 0.1
+                    }
+                },
+                "bot_settings": {
+                    "update_interval": 60,
+                    "backtest_mode": True
+                }
             }
-            
-            logger.info(f"Prepared historical data for {symbol}: {len(symbol_data)} data points")
-        
-        return historical_data
     
-    def _generate_synthetic_data(self, start_date=None, end_date=None):
+    def _generate_synthetic_data(self, start_date, end_date):
         """
-        Generate synthetic data for backtesting.
+        Generate synthetic historical data for backtesting.
         
         Args:
-            start_date (str): Start date for backtesting (format: YYYY-MM-DD)
-            end_date (str): End date for backtesting (format: YYYY-MM-DD)
+            start_date (datetime): Start date for the data
+            end_date (datetime): End date for the data
             
         Returns:
-            pandas.DataFrame: Synthetic historical data
+            dict: Dictionary of historical data for each symbol
         """
-        # Set default date range if not specified
-        if not start_date:
-            start_date = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
-        if not end_date:
-            end_date = datetime.now().strftime('%Y-%m-%d')
-        
-        start_date = pd.to_datetime(start_date)
-        end_date = pd.to_datetime(end_date)
-        
-        # Generate date range
-        date_range = pd.date_range(start=start_date, end=end_date, freq='1D')
-        
-        # Generate data for each symbol
         symbols = self.config["trading"]["symbols"]
-        data_frames = []
+        data = {}
         
         for symbol in symbols:
+            # Generate synthetic price data
+            days = (end_date - start_date).days + 1
+            
             # Set initial price based on symbol
             if symbol == "BTC/USD":
-                initial_price = 50000.0
+                initial_price = 40000.0
                 volatility = 0.03
             elif symbol == "ETH/USD":
-                initial_price = 3000.0
+                initial_price = 2000.0
                 volatility = 0.04
             else:
                 initial_price = 100.0
                 volatility = 0.02
             
-            # Generate price series with random walk and some trend
-            n = len(date_range)
-            prices = np.zeros(n)
-            prices[0] = initial_price
+            # Generate daily returns with some autocorrelation
+            np.random.seed(42)  # For reproducibility
+            returns = np.random.normal(0.0005, volatility, days)
             
-            # Add some trend and seasonality
-            trend = np.linspace(0, 0.5, n)  # Upward trend
-            seasonality = 0.1 * np.sin(np.linspace(0, 10 * np.pi, n))  # Seasonal pattern
+            # Add some autocorrelation
+            for i in range(1, days):
+                returns[i] = 0.7 * returns[i] + 0.3 * returns[i-1]
             
-            # Generate random walk with drift
-            for i in range(1, n):
-                daily_return = np.random.normal(0.0005, volatility)  # Mean daily return and volatility
-                prices[i] = prices[i-1] * (1 + daily_return + trend[i] / n + seasonality[i])
+            # Generate prices
+            prices = [initial_price]
+            for ret in returns:
+                prices.append(prices[-1] * (1 + ret))
+            
+            # Generate dates
+            dates = [start_date + timedelta(days=i) for i in range(days)]
             
             # Create DataFrame
             df = pd.DataFrame({
-                'timestamp': date_range,
-                'symbol': symbol,
-                'open': prices * (1 + np.random.normal(0, 0.005, n)),
-                'high': prices * (1 + np.random.normal(0.01, 0.005, n)),
-                'low': prices * (1 - np.random.normal(0.01, 0.005, n)),
-                'close': prices,
-                'volume': initial_price * 10 * (1 + np.random.normal(0, 0.2, n))
+                "date": dates,
+                "price": prices[:-1],  # Remove the extra price
+                "volume": np.random.uniform(1000, 10000, days)
             })
             
-            data_frames.append(df)
+            # Store data
+            data[symbol] = df
         
-        # Combine all data
-        combined_data = pd.concat(data_frames, ignore_index=True)
+        logger.info(f"Generated synthetic data for {len(symbols)} symbols from {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}")
         
-        logger.info(f"Generated synthetic data for {len(symbols)} symbols from {start_date.date()} to {end_date.date()}")
-        return combined_data
+        return data
     
-    def run_backtest(self, historical_data, initial_balance=10000.0):
+    def _prepare_data_for_strategy(self, symbol, df, date):
         """
-        Run a backtest using the specified strategy and historical data.
+        Prepare data for strategy analysis.
         
         Args:
-            historical_data (dict): Historical data for each symbol
-            initial_balance (float): Initial portfolio balance
+            symbol (str): Trading symbol
+            df (DataFrame): Historical data for the symbol
+            date (datetime): Current date
+            
+        Returns:
+            dict: Data in the format expected by the strategy
+        """
+        # Filter data up to the current date
+        historical_df = df[df["date"] <= date].copy()
+        
+        if len(historical_df) < 50:  # Require at least 50 data points
+            return None
+        
+        # Get current price
+        current_price = historical_df.iloc[-1]["price"]
+        
+        # Get historical prices
+        historical_prices = historical_df["price"].tolist()
+        
+        # Prepare data
+        data = {
+            "symbol": symbol,
+            "current_price": current_price,
+            "historical_prices": historical_prices,
+            "timestamp": date.timestamp()
+        }
+        
+        return data
+    
+    def _open_position(self, symbol, position_type, price, size, stop_loss_price, take_profit_price, date):
+        """
+        Open a new position.
+        
+        Args:
+            symbol (str): Trading symbol
+            position_type (str): Type of position ("long" or "short")
+            price (float): Entry price
+            size (float): Position size
+            stop_loss_price (float): Stop-loss price
+            take_profit_price (float): Take-profit price
+            date (datetime): Date of the trade
+            
+        Returns:
+            bool: Whether the position was opened successfully
+        """
+        # Check if we already have a position for this symbol
+        if symbol in self.positions:
+            logger.warning(f"Already have a position for {symbol}, cannot open another")
+            return False
+        
+        # Calculate cost
+        cost = price * size
+        
+        # Check if we have enough balance
+        if cost > self.balance:
+            logger.warning(f"Insufficient balance to open position for {symbol}")
+            return False
+        
+        # Deduct cost from balance
+        self.balance -= cost
+        
+        # Create position
+        self.positions[symbol] = {
+            "type": position_type,
+            "entry_price": price,
+            "size": size,
+            "stop_loss": stop_loss_price,
+            "take_profit": take_profit_price,
+            "entry_date": date
+        }
+        
+        # Record trade
+        self.trade_history.append({
+            "date": date.strftime("%Y-%m-%d %H:%M:%S"),
+            "symbol": symbol,
+            "type": "BUY" if position_type == "long" else "SELL",
+            "price": price,
+            "size": size,
+            "pnl": 0.0
+        })
+        
+        logger.info(f"Opened {position_type.upper()} position for {symbol} at {price:.2f} with size {size:.6f}")
+        
+        return True
+    
+    def _close_position(self, symbol, price, reason, date):
+        """
+        Close an existing position.
+        
+        Args:
+            symbol (str): Trading symbol
+            price (float): Exit price
+            reason (str): Reason for closing the position
+            date (datetime): Date of the trade
+            
+        Returns:
+            tuple: (success, pnl) - Whether the position was closed successfully and the P&L
+        """
+        # Check if we have a position for this symbol
+        if symbol not in self.positions:
+            logger.warning(f"No position for {symbol} to close")
+            return False, 0.0
+        
+        # Get position details
+        position = self.positions[symbol]
+        entry_price = position["entry_price"]
+        size = position["size"]
+        position_type = position["type"]
+        
+        # Calculate P&L
+        if position_type == "long":
+            pnl = (price - entry_price) * size
+        else:  # short position
+            pnl = (entry_price - price) * size
+        
+        # Add proceeds to balance
+        self.balance += (price * size + pnl)
+        
+        # Record trade
+        self.trade_history.append({
+            "date": date.strftime("%Y-%m-%d %H:%M:%S"),
+            "symbol": symbol,
+            "type": "SELL" if position_type == "long" else "BUY",
+            "price": price,
+            "size": size,
+            "pnl": pnl
+        })
+        
+        # Remove position
+        del self.positions[symbol]
+        
+        logger.info(f"Closed {position_type.upper()} position for {symbol} at {price:.2f} with P&L {pnl:.2f} due to {reason}")
+        
+        return True, pnl
+    
+    def _calculate_portfolio_value(self, prices, date):
+        """
+        Calculate the total portfolio value.
+        
+        Args:
+            prices (dict): Current prices for each symbol
+            date (datetime): Current date
+            
+        Returns:
+            float: Total portfolio value
+        """
+        value = self.balance
+        
+        for symbol, position in self.positions.items():
+            if symbol in prices:
+                current_price = prices[symbol]
+                size = position["size"]
+                value += current_price * size
+        
+        # Record portfolio value
+        self.portfolio_history.append({
+            "date": date,
+            "value": value
+        })
+        
+        return value
+    
+    def run_backtest(self, start_date, end_date):
+        """
+        Run a backtest over a specified date range.
+        
+        Args:
+            start_date (datetime): Start date for the backtest
+            end_date (datetime): End date for the backtest
             
         Returns:
             dict: Backtest results
         """
-        logger.info(f"Starting backtest with initial balance: {initial_balance:.2f}")
+        # Generate synthetic data
+        data = self._generate_synthetic_data(start_date, end_date)
         
-        # Initialize portfolio for backtesting
-        portfolio = PortfolioManager(initial_balance=initial_balance, portfolio_file=None)
+        # Initialize results
+        results = {
+            "initial_balance": self.initial_balance,
+            "final_balance": 0.0,
+            "total_trades": 0,
+            "winning_trades": 0,
+            "losing_trades": 0,
+            "total_profit": 0.0,
+            "total_loss": 0.0,
+            "max_drawdown": 0.0,
+            "max_drawdown_pct": 0.0,
+            "sharpe_ratio": 0.0,
+            "win_rate": 0.0,
+            "profit_factor": 0.0,
+            "total_return": 0.0,
+            "total_return_pct": 0.0,
+            "portfolio_history": []
+        }
         
-        # Track portfolio value over time
-        portfolio_values = []
-        trade_history = []
-        signals_history = []
+        # Reset backtester state
+        self.balance = self.initial_balance
+        self.positions = {}
+        self.trade_history = []
+        self.portfolio_history = []
         
-        # Get the list of timestamps (assuming all symbols have the same timestamps)
-        symbol = list(historical_data.keys())[0]
-        timestamps = historical_data[symbol]["timestamps"]
+        # Get symbols
+        symbols = self.config["trading"]["symbols"]
         
-        # Run the backtest for each timestamp
-        for i, timestamp in enumerate(timestamps):
-            current_prices = {}
+        # Run backtest day by day
+        current_date = start_date
+        max_portfolio_value = self.initial_balance
+        
+        while current_date <= end_date:
+            # Skip weekends (optional)
+            if current_date.weekday() >= 5:  # 5 = Saturday, 6 = Sunday
+                current_date += timedelta(days=1)
+                continue
             
-            # Get current prices for all symbols
-            for symbol, data in historical_data.items():
-                if i < len(data["historical_prices"]):
-                    current_prices[symbol] = data["closes"][i]
+            # Get current prices
+            current_prices = {}
+            for symbol in symbols:
+                df = data[symbol]
+                prices = df[df["date"] == current_date]["price"]
+                if not prices.empty:
+                    current_prices[symbol] = prices.iloc[0]
+            
+            # Skip if no prices available
+            if not current_prices:
+                current_date += timedelta(days=1)
+                continue
+            
+            # Calculate portfolio value
+            portfolio_value = self._calculate_portfolio_value(current_prices, current_date)
+            
+            # Update max portfolio value
+            if portfolio_value > max_portfolio_value:
+                max_portfolio_value = portfolio_value
+            
+            # Calculate drawdown
+            drawdown = max_portfolio_value - portfolio_value
+            drawdown_pct = drawdown / max_portfolio_value * 100
+            
+            if drawdown_pct > results["max_drawdown_pct"]:
+                results["max_drawdown"] = drawdown
+                results["max_drawdown_pct"] = drawdown_pct
+            
+            # Check existing positions for stop-loss and take-profit
+            for symbol in list(self.positions.keys()):
+                if symbol in current_prices:
+                    position = self.positions[symbol]
+                    current_price = current_prices[symbol]
+                    
+                    # Check if we should close the position
+                    should_close, reason = self.risk_manager.should_close_position(position, current_price)
+                    
+                    if should_close:
+                        success, pnl = self._close_position(symbol, current_price, reason, current_date)
+                        
+                        if success:
+                            # Update results
+                            results["total_trades"] += 1
+                            
+                            if pnl > 0:
+                                results["winning_trades"] += 1
+                                results["total_profit"] += pnl
+                            else:
+                                results["losing_trades"] += 1
+                                results["total_loss"] += abs(pnl)
             
             # Generate signals for each symbol
-            signals = []
-            for symbol, data in historical_data.items():
-                if i < len(data["historical_prices"]):
-                    # Prepare data for strategy
-                    strategy_data = {
-                        "symbol": symbol,
-                        "current_price": current_prices[symbol],
-                        "historical_prices": data["historical_prices"][:i+1],
-                        "timestamps": data["timestamps"][:i+1],
-                        "opens": data["opens"][:i+1],
-                        "highs": data["highs"][:i+1],
-                        "lows": data["lows"][:i+1],
-                        "closes": data["closes"][:i+1],
-                        "volumes": data["volumes"][:i+1]
-                    }
-                    
-                    # Generate signal
-                    signal = self.strategy.generate_signal(symbol, strategy_data)
-                    signals.append(signal)
-                    
-                    # Record signal
-                    signal_record = deepcopy(signal)
-                    signal_record["timestamp"] = timestamp
-                    signals_history.append(signal_record)
-            
-            # Execute trades based on signals
-            for signal in signals:
-                symbol = signal["symbol"]
+            for symbol in symbols:
+                # Prepare data for strategy
+                symbol_data = self._prepare_data_for_strategy(symbol, data[symbol], current_date)
+                
+                if symbol_data is None:
+                    continue
+                
+                # Generate signal
+                signal = self.strategy.generate_signal(symbol, symbol_data)
+                
+                # Execute signal
                 action = signal["action"]
                 confidence = signal["confidence"]
-                current_price = current_prices[symbol]
+                current_price = current_prices.get(symbol)
+                
+                if current_price is None:
+                    continue
                 
                 # Check if we already have a position for this symbol
-                has_position = portfolio.has_position(symbol)
+                has_position = symbol in self.positions
                 
                 if action == "buy" and not has_position and confidence > 0.2:
                     # Calculate position size
-                    portfolio_value = portfolio.get_portfolio_value(current_prices)
                     position_size = self.risk_manager.calculate_position_size(
                         portfolio_value, current_price, confidence)
                     
@@ -284,343 +451,204 @@ class Backtester:
                     take_profit_price = self.risk_manager.calculate_take_profit_price(current_price, "long")
                     
                     # Open a long position
-                    success = portfolio.open_position(
-                        symbol, "long", current_price, position_size, stop_loss_price, take_profit_price)
-                    
-                    if success:
-                        logger.debug(f"[{timestamp}] Opened LONG position for {symbol} at {current_price:.2f}")
+                    self._open_position(
+                        symbol, "long", current_price, position_size,
+                        stop_loss_price, take_profit_price, current_date)
                 
                 elif action == "sell" and has_position:
                     # Close the position
-                    position = portfolio.get_position(symbol)
+                    position = self.positions[symbol]
                     if position["type"] == "long":
-                        success, pnl = portfolio.close_position(symbol, current_price, "signal")
+                        success, pnl = self._close_position(symbol, current_price, "signal", current_date)
+                        
                         if success:
-                            logger.debug(f"[{timestamp}] Closed LONG position for {symbol} at {current_price:.2f}")
-                
-                # Check existing positions for stop-loss and take-profit
-                if has_position:
-                    position = portfolio.get_position(symbol)
-                    should_close, reason = self.risk_manager.should_close_position(position, current_price)
-                    
-                    if should_close:
-                        success, pnl = portfolio.close_position(symbol, current_price, reason)
-                        if success:
-                            logger.debug(f"[{timestamp}] Closed position for {symbol} at {current_price:.2f} due to {reason}")
-                    else:
-                        # Update trailing stop if applicable
-                        updated_position = self.risk_manager.update_trailing_stop(position, current_price)
-                        if updated_position != position:
-                            portfolio.positions[symbol] = updated_position
+                            # Update results
+                            results["total_trades"] += 1
+                            
+                            if pnl > 0:
+                                results["winning_trades"] += 1
+                                results["total_profit"] += pnl
+                            else:
+                                results["losing_trades"] += 1
+                                results["total_loss"] += abs(pnl)
             
-            # Record portfolio value
-            portfolio_value = portfolio.get_portfolio_value(current_prices)
-            portfolio_values.append({
-                "timestamp": timestamp,
-                "value": portfolio_value
-            })
+            # Move to next day
+            current_date += timedelta(days=1)
         
-        # Get final trade history
-        trade_history = portfolio.trade_history
+        # Close any remaining positions at the end of the backtest
+        for symbol in list(self.positions.keys()):
+            if symbol in current_prices:
+                current_price = current_prices[symbol]
+                success, pnl = self._close_position(symbol, current_price, "end_of_backtest", end_date)
+                
+                if success:
+                    # Update results
+                    results["total_trades"] += 1
+                    
+                    if pnl > 0:
+                        results["winning_trades"] += 1
+                        results["total_profit"] += pnl
+                    else:
+                        results["losing_trades"] += 1
+                        results["total_loss"] += abs(pnl)
         
-        # Calculate performance metrics
-        metrics = portfolio.get_performance_metrics()
+        # Calculate final results
+        results["final_balance"] = self.balance
+        results["total_return"] = results["final_balance"] - results["initial_balance"]
+        results["total_return_pct"] = results["total_return"] / results["initial_balance"] * 100
         
-        # Calculate additional metrics
-        initial_value = initial_balance
-        final_value = portfolio_values[-1]["value"] if portfolio_values else initial_balance
+        if results["total_trades"] > 0:
+            results["win_rate"] = results["winning_trades"] / results["total_trades"]
         
-        total_return = (final_value / initial_value - 1) * 100
-        
-        # Calculate drawdown
-        max_drawdown, max_drawdown_duration = self._calculate_drawdown(portfolio_values)
+        if results["total_loss"] > 0:
+            results["profit_factor"] = results["total_profit"] / results["total_loss"]
         
         # Calculate Sharpe ratio
-        sharpe_ratio = self._calculate_sharpe_ratio(portfolio_values)
+        if len(self.portfolio_history) > 1:
+            portfolio_values = [entry["value"] for entry in self.portfolio_history]
+            daily_returns = np.diff(portfolio_values) / portfolio_values[:-1]
+            
+            if len(daily_returns) > 0 and np.std(daily_returns) > 0:
+                results["sharpe_ratio"] = np.mean(daily_returns) / np.std(daily_returns) * np.sqrt(252)
         
-        # Prepare results
-        results = {
-            "initial_balance": initial_balance,
-            "final_balance": portfolio.balance,
-            "final_portfolio_value": final_value,
-            "total_return_pct": total_return,
-            "max_drawdown_pct": max_drawdown,
-            "max_drawdown_duration_days": max_drawdown_duration,
-            "sharpe_ratio": sharpe_ratio,
-            "total_trades": metrics["total_trades"],
-            "winning_trades": metrics["winning_trades"],
-            "losing_trades": metrics["losing_trades"],
-            "win_rate": metrics["win_rate"],
-            "total_profit_loss": metrics["total_profit_loss"],
-            "average_profit_loss": metrics["average_profit_loss"],
-            "portfolio_values": portfolio_values,
-            "trade_history": trade_history,
-            "signals_history": signals_history
-        }
+        # Store portfolio history
+        results["portfolio_history"] = self.portfolio_history
         
-        logger.info(f"Backtest completed: {results['total_return_pct']:.2f}% return, "
-                   f"{results['total_trades']} trades, {results['win_rate']*100:.2f}% win rate")
+        # Save results to file
+        self._save_results(results, start_date, end_date)
         
         return results
     
-    def _calculate_drawdown(self, portfolio_values):
-        """
-        Calculate the maximum drawdown and its duration.
-        
-        Args:
-            portfolio_values (list): List of portfolio values over time
-            
-        Returns:
-            tuple: (max_drawdown_pct, max_drawdown_duration_days)
-        """
-        if not portfolio_values:
-            return 0.0, 0
-        
-        # Extract values
-        values = [entry["value"] for entry in portfolio_values]
-        timestamps = [entry["timestamp"] for entry in portfolio_values]
-        
-        # Calculate drawdown
-        peak = values[0]
-        max_drawdown = 0.0
-        max_drawdown_duration = 0
-        current_drawdown_start = 0
-        
-        for i, value in enumerate(values):
-            if value > peak:
-                peak = value
-                current_drawdown_start = i
-            
-            drawdown = (peak - value) / peak * 100
-            
-            if drawdown > max_drawdown:
-                max_drawdown = drawdown
-                # Calculate duration in days
-                duration = (timestamps[i] - timestamps[current_drawdown_start]) / (24 * 3600)
-                max_drawdown_duration = duration
-        
-        return max_drawdown, max_drawdown_duration
-    
-    def _calculate_sharpe_ratio(self, portfolio_values, risk_free_rate=0.02):
-        """
-        Calculate the Sharpe ratio.
-        
-        Args:
-            portfolio_values (list): List of portfolio values over time
-            risk_free_rate (float): Annual risk-free rate
-            
-        Returns:
-            float: Sharpe ratio
-        """
-        if len(portfolio_values) < 2:
-            return 0.0
-        
-        # Extract values
-        values = np.array([entry["value"] for entry in portfolio_values])
-        
-        # Calculate daily returns
-        daily_returns = np.diff(values) / values[:-1]
-        
-        # Calculate annualized Sharpe ratio
-        mean_daily_return = np.mean(daily_returns)
-        std_daily_return = np.std(daily_returns)
-        
-        if std_daily_return == 0:
-            return 0.0
-        
-        # Assuming 252 trading days in a year
-        sharpe_ratio = (mean_daily_return * 252 - risk_free_rate) / (std_daily_return * np.sqrt(252))
-        
-        return sharpe_ratio
-    
-    def save_results(self, results, filename=None):
+    def _save_results(self, results, start_date, end_date):
         """
         Save backtest results to a file.
         
         Args:
             results (dict): Backtest results
-            filename (str): Filename to save results
-            
-        Returns:
-            str: Path to the saved results file
+            start_date (datetime): Start date of the backtest
+            end_date (datetime): End date of the backtest
         """
-        if not filename:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            strategy_name = self.strategy.name
-            filename = f"backtest_{strategy_name}_{timestamp}.json"
+        # Create directory if it doesn't exist
+        os.makedirs("backtest_results", exist_ok=True)
         
-        file_path = os.path.join(self.output_dir, filename)
+        # Create filename
+        strategy_name = self.config["trading"]["strategy"]
+        filename = f"backtest_{strategy_name}_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.json"
+        filepath = os.path.join("backtest_results", filename)
         
-        # Create a copy of results that can be serialized to JSON
-        serializable_results = deepcopy(results)
+        # Convert portfolio history dates to strings
+        for entry in results["portfolio_history"]:
+            entry["date"] = entry["date"].strftime("%Y-%m-%d")
         
-        # Convert timestamps to strings
-        for entry in serializable_results["portfolio_values"]:
-            if isinstance(entry["timestamp"], (datetime, pd.Timestamp)):
-                entry["timestamp"] = entry["timestamp"].isoformat()
+        # Save results
+        with open(filepath, 'w') as f:
+            json.dump(results, f, indent=4)
         
-        for entry in serializable_results["signals_history"]:
-            if isinstance(entry["timestamp"], (datetime, pd.Timestamp)):
-                entry["timestamp"] = entry["timestamp"].isoformat()
+        logger.info(f"Backtest results saved to {filepath}")
         
-        for trade in serializable_results["trade_history"]:
-            trade["open_time"] = datetime.fromtimestamp(trade["open_time"]).isoformat()
-            trade["close_time"] = datetime.fromtimestamp(trade["close_time"]).isoformat()
-        
-        try:
-            with open(file_path, 'w') as f:
-                json.dump(serializable_results, f, indent=4)
-            
-            logger.info(f"Saved backtest results to {file_path}")
-            return file_path
-        except Exception as e:
-            logger.error(f"Failed to save backtest results: {e}")
-            return None
+        # Generate and save chart
+        self._generate_chart(results, start_date, end_date)
     
-    def plot_results(self, results, filename=None):
+    def _generate_chart(self, results, start_date, end_date):
         """
-        Plot backtest results.
+        Generate and save a chart of the backtest results.
         
         Args:
             results (dict): Backtest results
-            filename (str): Filename to save the plot
-            
-        Returns:
-            str: Path to the saved plot file
+            start_date (datetime): Start date of the backtest
+            end_date (datetime): End date of the backtest
         """
-        if not filename:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            strategy_name = self.strategy.name
-            filename = f"backtest_{strategy_name}_{timestamp}.png"
-        
-        file_path = os.path.join(self.output_dir, filename)
-        
-        # Create figure with subplots
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 10), gridspec_kw={'height_ratios': [3, 1]})
-        
-        # Plot portfolio value
-        timestamps = [entry["timestamp"] for entry in results["portfolio_values"]]
-        values = [entry["value"] for entry in results["portfolio_values"]]
-        
-        ax1.plot(timestamps, values, label="Portfolio Value")
-        ax1.set_title(f"Backtest Results - {self.strategy.name}")
-        ax1.set_xlabel("Date")
-        ax1.set_ylabel("Portfolio Value")
-        ax1.grid(True)
-        ax1.legend()
-        
-        # Plot trades
-        buy_timestamps = []
-        buy_values = []
-        sell_timestamps = []
-        sell_values = []
-        
-        for trade in results["trade_history"]:
-            open_time = datetime.fromtimestamp(trade["open_time"]) if isinstance(trade["open_time"], (int, float)) else trade["open_time"]
-            close_time = datetime.fromtimestamp(trade["close_time"]) if isinstance(trade["close_time"], (int, float)) else trade["close_time"]
-            
-            # Find portfolio value at open and close times
-            open_value = None
-            close_value = None
-            
-            for i, entry in enumerate(results["portfolio_values"]):
-                entry_time = entry["timestamp"]
-                if isinstance(entry_time, str):
-                    entry_time = pd.to_datetime(entry_time)
-                
-                if open_time <= entry_time and open_value is None:
-                    open_value = values[i]
-                
-                if close_time <= entry_time and close_value is None:
-                    close_value = values[i]
-                    break
-            
-            if open_value is not None:
-                buy_timestamps.append(open_time)
-                buy_values.append(open_value)
-            
-            if close_value is not None:
-                sell_timestamps.append(close_time)
-                sell_values.append(close_value)
-        
-        ax1.scatter(buy_timestamps, buy_values, color='green', marker='^', label="Buy")
-        ax1.scatter(sell_timestamps, sell_values, color='red', marker='v', label="Sell")
-        ax1.legend()
-        
-        # Plot drawdown
-        drawdowns = []
-        peak = values[0]
-        
-        for value in values:
-            if value > peak:
-                peak = value
-                drawdowns.append(0.0)
-            else:
-                drawdown = (peak - value) / peak * 100
-                drawdowns.append(drawdown)
-        
-        ax2.fill_between(timestamps, drawdowns, color='red', alpha=0.3)
-        ax2.set_title("Drawdown")
-        ax2.set_xlabel("Date")
-        ax2.set_ylabel("Drawdown (%)")
-        ax2.grid(True)
-        ax2.invert_yaxis()  # Invert y-axis to show drawdowns as negative
-        
-        # Add summary statistics as text
-        summary = (
-            f"Total Return: {results['total_return_pct']:.2f}%\n"
-            f"Sharpe Ratio: {results['sharpe_ratio']:.2f}\n"
-            f"Max Drawdown: {results['max_drawdown_pct']:.2f}%\n"
-            f"Win Rate: {results['win_rate']*100:.2f}%\n"
-            f"Total Trades: {results['total_trades']}"
-        )
-        
-        plt.figtext(0.01, 0.01, summary, fontsize=10, bbox=dict(facecolor='white', alpha=0.8))
-        
-        # Adjust layout and save
-        plt.tight_layout()
-        
         try:
-            plt.savefig(file_path)
-            logger.info(f"Saved backtest plot to {file_path}")
-            plt.close(fig)
-            return file_path
+            # Convert dates from strings back to datetime
+            for entry in results["portfolio_history"]:
+                entry["date"] = datetime.strptime(entry["date"], "%Y-%m-%d")
+            
+            # Create DataFrame
+            df = pd.DataFrame(results["portfolio_history"])
+            
+            # Create figure
+            plt.figure(figsize=(12, 8))
+            
+            # Plot portfolio value
+            plt.subplot(2, 1, 1)
+            plt.plot(df["date"], df["value"])
+            plt.title("Portfolio Value")
+            plt.xlabel("Date")
+            plt.ylabel("Value ($)")
+            plt.grid(True)
+            
+            # Plot drawdown
+            plt.subplot(2, 1, 2)
+            max_value = df["value"].cummax()
+            drawdown = (df["value"] - max_value) / max_value * 100
+            plt.fill_between(df["date"], drawdown, 0, color="red", alpha=0.3)
+            plt.title("Drawdown")
+            plt.xlabel("Date")
+            plt.ylabel("Drawdown (%)")
+            plt.grid(True)
+            
+            # Add text with results
+            plt.figtext(0.01, 0.01, f"Strategy: {self.config['trading']['strategy']}\n"
+                                   f"Period: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}\n"
+                                   f"Initial Balance: ${results['initial_balance']:.2f}\n"
+                                   f"Final Balance: ${results['final_balance']:.2f}\n"
+                                   f"Total Return: ${results['total_return']:.2f} ({results['total_return_pct']:.2f}%)\n"
+                                   f"Total Trades: {results['total_trades']}\n"
+                                   f"Win Rate: {results['win_rate']*100:.2f}%\n"
+                                   f"Profit Factor: {results['profit_factor']:.2f}\n"
+                                   f"Max Drawdown: {results['max_drawdown_pct']:.2f}%\n"
+                                   f"Sharpe Ratio: {results['sharpe_ratio']:.2f}",
+                       fontsize=10, verticalalignment="bottom")
+            
+            # Adjust layout
+            plt.tight_layout(rect=[0, 0.1, 1, 0.95])
+            
+            # Create filename
+            strategy_name = self.config["trading"]["strategy"]
+            filename = f"backtest_{strategy_name}_{start_date.strftime('%Y%m%d')}_{end_date.strftime('%Y%m%d')}.png"
+            filepath = os.path.join("backtest_results", filename)
+            
+            # Save chart
+            plt.savefig(filepath)
+            plt.close()
+            
+            logger.info(f"Backtest chart saved to {filepath}")
+        
         except Exception as e:
-            logger.error(f"Failed to save backtest plot: {e}")
-            plt.close(fig)
-            return None
+            logger.error(f"Failed to generate chart: {e}")
 
 
-def run_backtest(config_path="config.json", data_path=None, start_date=None, end_date=None, 
-                initial_balance=10000.0, output_dir="backtest_results"):
+def run_backtest(config_path="config.json", start_date=None, end_date=None, initial_balance=10000.0):
     """
     Run a backtest with the specified parameters.
     
     Args:
         config_path (str): Path to the configuration file
-        data_path (str): Path to the historical data file
-        start_date (str): Start date for backtesting (format: YYYY-MM-DD)
-        end_date (str): End date for backtesting (format: YYYY-MM-DD)
-        initial_balance (float): Initial portfolio balance
-        output_dir (str): Directory to save backtest results
+        start_date (str): Start date for the backtest (format: YYYY-MM-DD)
+        end_date (str): End date for the backtest (format: YYYY-MM-DD)
+        initial_balance (float): Initial balance for backtesting
         
     Returns:
         dict: Backtest results
     """
-    # Initialize backtester
-    backtester = Backtester(config_path, output_dir)
+    # Parse dates
+    if start_date is None:
+        start_date = (datetime.now() - timedelta(days=365)).strftime("%Y-%m-%d")
     
-    # Load historical data
-    historical_data = backtester.load_historical_data(data_path, start_date, end_date)
+    if end_date is None:
+        end_date = datetime.now().strftime("%Y-%m-%d")
+    
+    if isinstance(start_date, str):
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+    
+    if isinstance(end_date, str):
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    
+    # Create backtester
+    backtester = Backtester(config_path, initial_balance)
     
     # Run backtest
-    results = backtester.run_backtest(historical_data, initial_balance)
-    
-    # Save results
-    backtester.save_results(results)
-    
-    # Plot results
-    backtester.plot_results(results)
+    results = backtester.run_backtest(start_date, end_date)
     
     return results
 
@@ -638,28 +666,51 @@ if __name__ == "__main__":
     )
     
     # Parse command line arguments
-    parser = argparse.ArgumentParser(description="Backtest trading strategies")
-    parser.add_argument("--config", type=str, default="config.json",
+    parser = argparse.ArgumentParser(description="Trading Bot Backtester")
+    parser.add_argument("--config", "-c", type=str, default="config.json",
                         help="Path to configuration file")
-    parser.add_argument("--data", type=str, default=None,
-                        help="Path to historical data file")
-    parser.add_argument("--start", type=str, default=None,
+    parser.add_argument("--start-date", "-s", type=str, default=None,
                         help="Start date for backtesting (format: YYYY-MM-DD)")
-    parser.add_argument("--end", type=str, default=None,
+    parser.add_argument("--end-date", "-e", type=str, default=None,
                         help="End date for backtesting (format: YYYY-MM-DD)")
-    parser.add_argument("--balance", type=float, default=10000.0,
-                        help="Initial portfolio balance")
-    parser.add_argument("--output", type=str, default="backtest_results",
-                        help="Directory to save backtest results")
+    parser.add_argument("--initial-balance", "-b", type=float, default=10000.0,
+                        help="Initial balance for backtesting")
+    parser.add_argument("--strategy", "-t", type=str, default=None,
+                        help="Strategy to backtest (overrides config)")
     
     args = parser.parse_args()
     
+    # Update strategy if specified
+    if args.strategy:
+        # Load config
+        with open(args.config, 'r') as f:
+            config = json.load(f)
+        
+        # Update strategy
+        config["trading"]["strategy"] = args.strategy
+        
+        # Save config
+        with open(args.config, 'w') as f:
+            json.dump(config, f, indent=4)
+        
+        logger.info(f"Updated strategy to: {args.strategy}")
+    
     # Run backtest
-    run_backtest(
+    results = run_backtest(
         config_path=args.config,
-        data_path=args.data,
-        start_date=args.start,
-        end_date=args.end,
-        initial_balance=args.balance,
-        output_dir=args.output
+        start_date=args.start_date,
+        end_date=args.end_date,
+        initial_balance=args.initial_balance
     )
+    
+    # Print results
+    print("\n=== Backtest Results ===")
+    print(f"Initial Balance: ${results['initial_balance']:.2f}")
+    print(f"Final Balance: ${results['final_balance']:.2f}")
+    print(f"Total Return: ${results['total_return']:.2f} ({results['total_return_pct']:.2f}%)")
+    print(f"Total Trades: {results['total_trades']}")
+    print(f"Win Rate: {results['win_rate']*100:.2f}%")
+    print(f"Profit Factor: {results['profit_factor']:.2f}")
+    print(f"Max Drawdown: {results['max_drawdown_pct']:.2f}%")
+    print(f"Sharpe Ratio: {results['sharpe_ratio']:.2f}")
+    print(f"Results saved to backtest_results directory")

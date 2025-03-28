@@ -334,6 +334,15 @@ def run_dashboard_demo():
     logger.info("Starting dashboard on port 8050. Press Ctrl+C to stop.")
 
     try:
+        # Print instructions
+        print("\n" + "="*80)
+        print("Dashboard is now running at http://localhost:8050")
+        print("A browser window should open automatically.")
+        print("If not, please open the URL manually in your browser.")
+        print("Press Ctrl+C to stop the dashboard.")
+        print("="*80 + "\n")
+
+        # Run the dashboard
         dashboard.run()
     except KeyboardInterrupt:
         logger.info("Dashboard demo stopped by user")

@@ -202,3 +202,750 @@
 2025-03-28 20:35:51,927 - TradingBot.Backtesting - INFO - Prepared historical data for BTC/USD: 365 data points
 2025-03-28 20:35:51,930 - TradingBot.Backtesting - INFO - Prepared historical data for ETH/USD: 365 data points
 2025-03-28 20:35:51,931 - TradingBot.Backtesting - INFO - Starting backtest with initial balance: 10000.00
+2025-03-28 20:46:34,832 - TradingBot.Strategies - INFO - ML strategies imported successfully
+2025-03-28 20:46:35,623 - TradingBot - INFO - Configuration loaded from config.json
+2025-03-28 20:46:35,662 - TradingBot.DataFetcher - WARNING - Unknown provider: example_provider. Using demo data fetcher.
+2025-03-28 20:46:35,704 - TradingBot.DataFetcher - INFO - Initialized example_provider data fetcher
+2025-03-28 20:46:35,748 - TradingBot.DataFetcher - INFO - Demo data fetcher initialized
+2025-03-28 20:46:35,826 - TradingBot.RiskManager - INFO - Risk manager initialized with max_position_size=0.1, stop_loss=0.05, take_profit=0.1
+2025-03-28 20:46:35,900 - TradingBot.PortfolioManager - INFO - Initialized new portfolio with balance 10000.00
+2025-03-28 20:46:35,977 - TradingBot.Notifications - INFO - Notification configuration loaded from notification_config.json
+2025-03-28 20:46:36,028 - TradingBot.Notifications - INFO - Notification system initialized
+2025-03-28 20:46:36,069 - TradingBot.Strategies - INFO - SMA Strategy initialized with short_window=20, long_window=50
+2025-03-28 20:46:36,106 - TradingBot - INFO - Trading bot initialized with strategy: simple_moving_average
+2025-03-28 20:46:36,112 - TradingBot - INFO - Trading bot started
+2025-03-28 20:46:36,125 - TradingBot.Notifications - INFO - Console notification: Trading Bot Started
+2025-03-28 20:46:36,127 - TradingBot - INFO - Fetching market data...
+2025-03-28 20:46:36,129 - TradingBot - INFO - Market data updated for 2 symbols
+2025-03-28 20:46:36,129 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:46:36,131 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:36,132 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: SELL with confidence 0.00
+2025-03-28 20:46:36,133 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:46:36,133 - TradingBot - INFO - Executing trades...
+2025-03-28 20:46:36,134 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:46:36,134 - TradingBot - INFO - Current Prices:
+2025-03-28 20:46:36,136 - TradingBot - INFO -   BTC/USD: 51128.72
+2025-03-28 20:46:36,137 - TradingBot - INFO -   ETH/USD: 3084.01
+2025-03-28 20:46:36,137 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:46:36,144 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:46:36,144 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:46:36,145 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:46:36,147 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:46:36,156 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:46:36,164 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:46:36,171 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:46:36,174 - TradingBot - INFO - Sleeping for 60 seconds
+2025-03-28 20:46:48,091 - TradingBot - INFO - Trading bot stopped by user
+2025-03-28 20:46:48,091 - TradingBot - INFO - Trading bot stopped
+2025-03-28 20:46:48,094 - TradingBot.Notifications - INFO - Console notification: Trading Bot Stopped
+2025-03-28 20:46:55,806 - TradingBot.Strategies - INFO - ML strategies imported successfully
+2025-03-28 20:46:55,808 - TradingBot.Main - INFO - Running backtest from 2023-01-01 to 2023-12-31
+2025-03-28 20:46:55,810 - TradingBot.Backtesting - INFO - Configuration loaded from config.json
+2025-03-28 20:46:55,811 - TradingBot.RiskManager - INFO - Risk manager initialized with max_position_size=0.1, stop_loss=0.05, take_profit=0.1
+2025-03-28 20:46:55,811 - TradingBot.Strategies - INFO - SMA Strategy initialized with short_window=20, long_window=50
+2025-03-28 20:46:55,812 - TradingBot.Backtesting - INFO - Backtester initialized with strategy: simple_moving_average
+2025-03-28 20:46:55,823 - TradingBot.Backtesting - INFO - Generated synthetic data for 2 symbols from 2023-01-01 to 2023-12-31
+2025-03-28 20:46:55,913 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,915 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,918 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,920 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,923 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,924 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,927 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,929 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,932 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,933 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,936 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,938 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,941 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,943 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,946 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,947 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,950 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,951 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,955 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,958 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,960 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,962 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,965 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,967 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,969 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,971 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,973 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,975 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,976 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,979 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,981 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,982 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,985 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,986 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,989 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,991 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,994 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,995 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:55,998 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,000 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,004 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,005 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,008 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,010 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,012 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,014 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,018 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,020 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,023 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: BUY with confidence 0.00
+2025-03-28 20:46:56,025 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,028 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,029 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,032 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,034 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,037 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,039 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,041 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,043 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,045 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,046 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,049 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,051 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,052 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,055 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,057 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,058 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,061 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,062 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,065 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,066 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,068 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,069 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,073 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,074 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,076 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,077 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,080 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,081 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,083 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: SELL with confidence 0.00
+2025-03-28 20:46:56,084 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: SELL with confidence 0.01
+2025-03-28 20:46:56,087 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,088 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,090 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,091 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,094 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,097 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,101 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,103 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,107 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,109 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,113 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,115 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,117 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,119 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,123 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,125 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,128 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,130 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,132 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,134 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,136 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,139 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,143 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,143 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,148 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,149 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,154 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,155 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,159 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,161 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,165 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,166 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,169 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: BUY with confidence 0.00
+2025-03-28 20:46:56,171 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: BUY with confidence 0.00
+2025-03-28 20:46:56,175 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,176 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,180 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,183 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,186 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,188 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,192 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,194 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,195 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,198 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,201 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,202 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,207 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,208 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,211 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,212 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,215 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,216 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,219 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,221 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,224 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,226 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,228 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,230 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,232 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,234 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,237 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,238 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: SELL with confidence 0.00
+2025-03-28 20:46:56,241 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: SELL with confidence 0.00
+2025-03-28 20:46:56,243 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,245 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,247 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,249 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,251 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,254 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,256 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,258 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,260 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,262 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,263 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,266 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,266 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,269 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,271 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,275 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,276 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,278 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,280 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,283 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,285 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,288 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,290 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,292 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,293 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,296 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,297 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,300 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,301 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,304 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: BUY with confidence 0.00
+2025-03-28 20:46:56,305 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: BUY with confidence 0.00
+2025-03-28 20:46:56,308 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,309 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,311 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,313 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,316 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,318 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,320 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,321 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,324 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,325 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,327 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,330 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,333 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,334 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,337 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,339 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,342 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,343 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,346 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,348 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,351 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,353 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,357 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,358 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,364 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,365 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,369 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,370 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,374 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,377 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,381 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,383 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,387 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,388 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,391 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,394 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,397 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,398 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,401 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,404 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,407 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,409 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,412 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,414 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,418 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,419 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,424 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,427 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,430 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,433 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,436 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,439 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,443 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,443 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,448 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,450 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,452 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,454 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,457 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,459 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,462 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,463 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,466 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,468 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,471 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,473 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,476 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,477 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,481 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,482 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,486 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,489 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,491 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,493 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,495 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,497 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,501 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,504 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,506 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,508 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,512 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,513 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,518 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,520 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,524 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,526 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,529 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,531 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,534 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,535 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,539 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,541 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,544 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,546 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,550 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,551 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,555 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,558 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,561 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,563 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,566 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,569 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,572 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,575 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,579 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,582 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,585 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,588 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,591 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,594 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,598 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,600 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,604 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,606 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,610 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,612 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,615 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,618 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,621 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,623 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,628 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,630 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,634 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,636 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: SELL with confidence 0.00
+2025-03-28 20:46:56,642 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: SELL with confidence 0.00
+2025-03-28 20:46:56,645 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,649 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,651 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,657 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,660 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,663 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: BUY with confidence 0.00
+2025-03-28 20:46:56,665 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,673 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,678 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: BUY with confidence 0.00
+2025-03-28 20:46:56,695 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,705 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: SELL with confidence 0.00
+2025-03-28 20:46:56,714 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,721 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,729 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,732 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,742 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: SELL with confidence 0.00
+2025-03-28 20:46:56,747 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,761 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,763 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,771 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,775 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,783 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,788 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,795 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,800 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,806 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,808 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,816 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,820 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,832 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,840 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,848 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,850 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,857 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,860 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,864 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,867 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,870 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,873 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,878 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,880 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,884 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,887 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,893 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,897 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,901 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,906 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,910 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,913 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,921 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,925 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,929 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,933 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,941 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,943 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,947 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,950 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,953 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,956 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,959 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,961 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,966 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,968 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,972 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,973 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,977 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,980 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,984 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,986 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,990 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,992 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,995 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:56,998 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,001 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,003 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,007 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,008 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,011 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,013 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,016 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,018 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,021 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,023 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,027 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,029 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,032 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,033 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,036 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,039 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,041 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,044 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,047 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,049 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,051 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,052 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,057 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,060 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,064 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,065 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,069 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,071 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,075 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,077 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,081 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,093 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,095 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,098 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,100 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,102 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,105 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,107 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,109 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,111 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,114 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,115 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,117 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,119 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,122 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,123 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,125 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,127 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,129 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,130 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,134 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,145 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,187 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,236 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,252 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,255 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,262 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,266 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,276 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,279 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,282 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,284 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,290 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,292 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,295 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,297 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,300 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,301 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,306 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,308 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,311 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,313 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,316 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,317 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,319 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,322 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,324 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,326 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:46:57,335 - TradingBot.Backtesting - INFO - Backtest results saved to backtest_results\backtest_simple_moving_average_20230101_20231231.json
+2025-03-28 20:46:59,221 - TradingBot.Backtesting - INFO - Backtest chart saved to backtest_results\backtest_simple_moving_average_20230101_20231231.png
+2025-03-28 20:46:59,223 - TradingBot.Main - INFO - Backtest completed with 0.00% return
+2025-03-28 20:46:59,223 - TradingBot.Main - INFO - Win rate: 0.00%
+2025-03-28 20:46:59,224 - TradingBot.Main - INFO - Total trades: 0
+2025-03-28 20:46:59,224 - TradingBot.Main - INFO - Max drawdown: 0.00%
+2025-03-28 20:46:59,224 - TradingBot.Main - INFO - Sharpe ratio: 0.00
+2025-03-28 20:47:16,062 - TradingBot.Main - INFO - Starting dashboard on port 8050
+2025-03-28 20:47:16,064 - TradingBot.Dashboard - INFO - Configuration loaded from config.json
+2025-03-28 20:47:16,064 - TradingBot.Dashboard - INFO - Dashboard initialized on port 8050
+2025-03-28 20:47:16,720 - TradingBot.Dashboard - INFO - Dashboard server started at http://localhost:8050
+2025-03-28 20:50:03,020 - TradingBot.Dashboard - INFO - Dashboard server stopped
+2025-03-28 20:50:05,274 - TradingBot.Main - INFO - Starting dashboard on port 8050
+2025-03-28 20:50:05,275 - TradingBot.Dashboard - INFO - Configuration loaded from config.json
+2025-03-28 20:50:05,275 - TradingBot.Dashboard - INFO - Dashboard initialized on port 8050
+2025-03-28 20:50:05,658 - TradingBot.Dashboard - INFO - Dashboard server started at http://localhost:8050
+2025-03-28 20:50:19,351 - TradingBot.Strategies - INFO - ML strategies imported successfully
+2025-03-28 20:50:20,048 - TradingBot - INFO - Configuration loaded from config.json
+2025-03-28 20:50:20,050 - TradingBot.DataFetcher - WARNING - Unknown provider: example_provider. Using demo data fetcher.
+2025-03-28 20:50:20,052 - TradingBot.DataFetcher - INFO - Initialized example_provider data fetcher
+2025-03-28 20:50:20,052 - TradingBot.DataFetcher - INFO - Demo data fetcher initialized
+2025-03-28 20:50:20,053 - TradingBot.RiskManager - INFO - Risk manager initialized with max_position_size=0.1, stop_loss=0.05, take_profit=0.1
+2025-03-28 20:50:20,054 - TradingBot.PortfolioManager - INFO - Initialized new portfolio with balance 10000.00
+2025-03-28 20:50:20,056 - TradingBot.Notifications - INFO - Notification configuration loaded from notification_config.json
+2025-03-28 20:50:20,057 - TradingBot.Notifications - INFO - Notification system initialized
+2025-03-28 20:50:20,059 - TradingBot.Strategies - INFO - SMA Strategy initialized with short_window=20, long_window=50
+2025-03-28 20:50:20,061 - TradingBot - INFO - Trading bot initialized with strategy: simple_moving_average
+2025-03-28 20:50:20,072 - TradingBot - INFO - Trading bot started
+2025-03-28 20:50:20,072 - TradingBot.Dashboard - INFO - Trading bot started
+2025-03-28 20:50:20,082 - TradingBot.Notifications - INFO - Console notification: Trading Bot Started
+2025-03-28 20:50:20,082 - TradingBot - INFO - Fetching market data...
+2025-03-28 20:50:20,091 - TradingBot - INFO - Market data updated for 2 symbols
+2025-03-28 20:50:20,097 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:50:20,098 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:50:20,100 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:50:20,101 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:50:20,101 - TradingBot - INFO - Executing trades...
+2025-03-28 20:50:20,113 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:50:20,117 - TradingBot - INFO - Current Prices:
+2025-03-28 20:50:20,118 - TradingBot - INFO -   BTC/USD: 49442.61
+2025-03-28 20:50:20,119 - TradingBot - INFO -   ETH/USD: 3111.84
+2025-03-28 20:50:20,123 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:50:20,127 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:50:20,129 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:50:20,130 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:50:20,130 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:50:20,132 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:50:20,133 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:50:20,134 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:50:20,134 - TradingBot - INFO - Sleeping for 60 seconds
+2025-03-28 20:51:13,369 - TradingBot - INFO - Trading bot stopping...
+2025-03-28 20:51:18,388 - TradingBot.Dashboard - INFO - Trading bot stopped
+2025-03-28 20:51:18,389 - TradingBot.Dashboard - INFO - Dashboard server stopped
+2025-03-28 20:51:27,415 - TradingBot.Main - INFO - Starting dashboard on port 8050
+2025-03-28 20:51:27,416 - TradingBot.Dashboard - INFO - Configuration loaded from config.json
+2025-03-28 20:51:27,416 - TradingBot.Dashboard - INFO - Dashboard initialized on port 8050
+2025-03-28 20:51:27,845 - TradingBot.Dashboard - INFO - Dashboard server started at http://localhost:8050
+2025-03-28 20:51:34,244 - TradingBot.Strategies - INFO - ML strategies imported successfully
+2025-03-28 20:51:35,031 - TradingBot - INFO - Configuration loaded from config.json
+2025-03-28 20:51:35,032 - TradingBot.DataFetcher - WARNING - Unknown provider: example_provider. Using demo data fetcher.
+2025-03-28 20:51:35,033 - TradingBot.DataFetcher - INFO - Initialized example_provider data fetcher
+2025-03-28 20:51:35,033 - TradingBot.DataFetcher - INFO - Demo data fetcher initialized
+2025-03-28 20:51:35,034 - TradingBot.RiskManager - INFO - Risk manager initialized with max_position_size=0.1, stop_loss=0.05, take_profit=0.1
+2025-03-28 20:51:35,041 - TradingBot.PortfolioManager - INFO - Initialized new portfolio with balance 10000.00
+2025-03-28 20:51:35,045 - TradingBot.Notifications - INFO - Notification configuration loaded from notification_config.json
+2025-03-28 20:51:35,048 - TradingBot.Notifications - INFO - Notification system initialized
+2025-03-28 20:51:35,050 - TradingBot.Strategies - INFO - SMA Strategy initialized with short_window=20, long_window=50
+2025-03-28 20:51:35,053 - TradingBot - INFO - Trading bot initialized with strategy: simple_moving_average
+2025-03-28 20:51:35,057 - TradingBot - INFO - Trading bot started
+2025-03-28 20:51:35,057 - TradingBot.Dashboard - INFO - Trading bot started
+2025-03-28 20:51:35,076 - TradingBot.Notifications - INFO - Console notification: Trading Bot Started
+2025-03-28 20:51:35,077 - TradingBot - INFO - Fetching market data...
+2025-03-28 20:51:35,080 - TradingBot - INFO - Market data updated for 2 symbols
+2025-03-28 20:51:35,082 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:51:35,083 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:51:35,083 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:51:35,085 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:51:35,086 - TradingBot - INFO - Executing trades...
+2025-03-28 20:51:35,087 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:51:35,088 - TradingBot - INFO - Current Prices:
+2025-03-28 20:51:35,088 - TradingBot - INFO -   BTC/USD: 49404.47
+2025-03-28 20:51:35,089 - TradingBot - INFO -   ETH/USD: 2882.31
+2025-03-28 20:51:35,090 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:51:35,090 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:51:35,091 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:51:35,093 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:51:35,093 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:51:35,094 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:51:35,099 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:51:35,101 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:51:35,103 - TradingBot - INFO - Sleeping for 60 seconds
+2025-03-28 20:52:35,105 - TradingBot - INFO - Fetching market data...
+2025-03-28 20:52:35,107 - TradingBot - INFO - Market data updated for 2 symbols
+2025-03-28 20:52:35,108 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:52:35,109 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:52:35,111 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:52:35,112 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:52:35,113 - TradingBot - INFO - Executing trades...
+2025-03-28 20:52:35,113 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:52:35,114 - TradingBot - INFO - Current Prices:
+2025-03-28 20:52:35,114 - TradingBot - INFO -   BTC/USD: 49711.12
+2025-03-28 20:52:35,115 - TradingBot - INFO -   ETH/USD: 2901.29
+2025-03-28 20:52:35,115 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:52:35,116 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:52:35,116 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:52:35,117 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:52:35,117 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:52:35,118 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:52:35,119 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:52:35,121 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:52:35,121 - TradingBot - INFO - Sleeping for 60 seconds
+2025-03-28 20:53:35,123 - TradingBot - INFO - Fetching market data...
+2025-03-28 20:53:35,127 - TradingBot - INFO - Market data updated for 2 symbols
+2025-03-28 20:53:35,128 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:53:35,130 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: SELL with confidence 0.00
+2025-03-28 20:53:35,131 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:53:35,133 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:53:35,135 - TradingBot - INFO - Executing trades...
+2025-03-28 20:53:35,139 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:53:35,142 - TradingBot - INFO - Current Prices:
+2025-03-28 20:53:35,145 - TradingBot - INFO -   BTC/USD: 48998.13
+2025-03-28 20:53:35,146 - TradingBot - INFO -   ETH/USD: 2990.82
+2025-03-28 20:53:35,147 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:53:35,151 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:53:35,154 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:53:35,158 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:53:35,161 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:53:35,163 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:53:35,163 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:53:35,166 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:53:35,168 - TradingBot - INFO - Sleeping for 60 seconds
+2025-03-28 20:54:35,170 - TradingBot - INFO - Fetching market data...
+2025-03-28 20:54:35,177 - TradingBot - INFO - Market data updated for 2 symbols
+2025-03-28 20:54:35,178 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:54:35,181 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:54:35,181 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:54:35,184 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:54:35,185 - TradingBot - INFO - Executing trades...
+2025-03-28 20:54:35,186 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:54:35,188 - TradingBot - INFO - Current Prices:
+2025-03-28 20:54:35,191 - TradingBot - INFO -   BTC/USD: 49914.84
+2025-03-28 20:54:35,193 - TradingBot - INFO -   ETH/USD: 2959.89
+2025-03-28 20:54:35,195 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:54:35,196 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:54:35,197 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:54:35,200 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:54:35,538 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:54:35,541 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:54:35,545 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:54:35,546 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:54:35,548 - TradingBot - INFO - Sleeping for 60 seconds
+2025-03-28 20:55:35,550 - TradingBot - INFO - Fetching market data...
+2025-03-28 20:55:35,552 - TradingBot - INFO - Market data updated for 2 symbols
+2025-03-28 20:55:35,553 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:55:35,553 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:55:35,554 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: BUY with confidence 0.00
+2025-03-28 20:55:35,554 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:55:35,554 - TradingBot - INFO - Executing trades...
+2025-03-28 20:55:35,555 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:55:35,555 - TradingBot - INFO - Current Prices:
+2025-03-28 20:55:35,556 - TradingBot - INFO -   BTC/USD: 51304.86
+2025-03-28 20:55:35,556 - TradingBot - INFO -   ETH/USD: 3072.04
+2025-03-28 20:55:35,557 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:55:35,557 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:55:35,558 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:55:35,558 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:55:35,559 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:55:35,560 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:55:35,560 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:55:35,561 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:55:35,561 - TradingBot - INFO - Sleeping for 60 seconds
+2025-03-28 20:56:35,564 - TradingBot - INFO - Fetching market data...
+2025-03-28 20:56:35,592 - TradingBot - INFO - Market data updated for 2 symbols
+2025-03-28 20:56:35,600 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:56:35,612 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: SELL with confidence 0.00
+2025-03-28 20:56:35,635 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: BUY with confidence 0.00
+2025-03-28 20:56:35,642 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:56:35,648 - TradingBot - INFO - Executing trades...
+2025-03-28 20:56:35,649 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:56:35,655 - TradingBot - INFO - Current Prices:
+2025-03-28 20:56:35,656 - TradingBot - INFO -   BTC/USD: 50922.53
+2025-03-28 20:56:35,682 - TradingBot - INFO -   ETH/USD: 3090.16
+2025-03-28 20:56:35,697 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:56:35,700 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:56:35,718 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:56:35,721 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:56:35,723 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:56:35,725 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:56:35,727 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:56:35,729 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:56:35,735 - TradingBot - INFO - Sleeping for 60 seconds
+2025-03-28 20:57:35,742 - TradingBot - INFO - Fetching market data...
+2025-03-28 20:57:35,744 - TradingBot - INFO - Market data updated for 2 symbols
+2025-03-28 20:57:35,745 - TradingBot - INFO - Analyzing market data...
+2025-03-28 20:57:35,746 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 20:57:35,746 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 20:57:35,747 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 20:57:35,747 - TradingBot - INFO - Executing trades...
+2025-03-28 20:57:35,747 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 20:57:35,748 - TradingBot - INFO - Current Prices:
+2025-03-28 20:57:35,748 - TradingBot - INFO -   BTC/USD: 52080.17
+2025-03-28 20:57:35,749 - TradingBot - INFO -   ETH/USD: 3212.82
+2025-03-28 20:57:35,749 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 20:57:35,750 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 20:57:35,750 - TradingBot - INFO - Open Positions: 0
+2025-03-28 20:57:35,751 - TradingBot - INFO - Performance Metrics:
+2025-03-28 20:57:35,751 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 20:57:35,751 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 20:57:35,753 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 20:57:35,753 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 20:57:35,754 - TradingBot - INFO - Sleeping for 60 seconds
+2025-03-28 20:58:35,150 - TradingBot - INFO - Trading bot stopping...
+2025-03-28 20:58:35,755 - TradingBot - INFO - Trading bot stopped
+2025-03-28 20:58:35,757 - TradingBot.Notifications - INFO - Console notification: Trading Bot Stopped
+2025-03-28 21:00:09,400 - TradingBot.Main - INFO - Setting up configuration files
+2025-03-28 21:00:09,402 - TradingBot.Main - INFO - Created configuration file: config.json
+2025-03-28 21:00:09,844 - TradingBot.Notifications - INFO - Notification configuration loaded from notification_config.json
+2025-03-28 21:00:09,845 - TradingBot.Notifications - INFO - Notification system initialized
+2025-03-28 21:00:09,845 - TradingBot.Main - INFO - Created notification configuration file: notification_config.json
+2025-03-28 21:00:09,846 - TradingBot.Main - INFO - Configuration setup complete
+2025-03-28 21:00:20,214 - TradingBot - INFO - Configuration loaded from config.json
+2025-03-28 21:00:20,215 - TradingBot.DataFetcher - INFO - Initialized demo data fetcher
+2025-03-28 21:00:20,215 - TradingBot.DataFetcher - INFO - Demo data fetcher initialized
+2025-03-28 21:00:20,216 - TradingBot.RiskManager - INFO - Risk manager initialized with max_position_size=0.1, stop_loss=0.05, take_profit=0.1
+2025-03-28 21:00:20,216 - TradingBot.PortfolioManager - INFO - Initialized new portfolio with balance 10000.00
+2025-03-28 21:00:20,217 - TradingBot.Notifications - INFO - Notification configuration loaded from notification_config.json
+2025-03-28 21:00:20,217 - TradingBot.Notifications - INFO - Notification system initialized
+2025-03-28 21:00:20,218 - TradingBot.Strategies - INFO - SMA Strategy initialized with short_window=20, long_window=50
+2025-03-28 21:00:20,219 - TradingBot - INFO - Trading bot initialized with strategy: simple_moving_average
+2025-03-28 21:00:20,219 - TradingBot - INFO - Trading bot started
+2025-03-28 21:00:20,220 - TradingBot.Notifications - INFO - Console notification: Trading Bot Started
+2025-03-28 21:00:20,220 - TradingBot - INFO - Fetching market data...
+2025-03-28 21:00:20,222 - TradingBot - INFO - Market data updated for 2 symbols
+2025-03-28 21:00:20,223 - TradingBot - INFO - Analyzing market data...
+2025-03-28 21:00:20,223 - TradingBot.Strategies - INFO - SMA Signal for BTC/USD: HOLD with confidence 0.00
+2025-03-28 21:00:20,223 - TradingBot.Strategies - INFO - SMA Signal for ETH/USD: HOLD with confidence 0.00
+2025-03-28 21:00:20,224 - TradingBot - INFO - Generated 2 trading signals
+2025-03-28 21:00:20,225 - TradingBot - INFO - Executing trades...
+2025-03-28 21:00:20,225 - TradingBot - INFO - === Trading Bot Status ===
+2025-03-28 21:00:20,226 - TradingBot - INFO - Current Prices:
+2025-03-28 21:00:20,226 - TradingBot - INFO -   BTC/USD: 51294.99
+2025-03-28 21:00:20,226 - TradingBot - INFO -   ETH/USD: 2895.15
+2025-03-28 21:00:20,227 - TradingBot - INFO - Portfolio Balance: 10000.00
+2025-03-28 21:00:20,227 - TradingBot - INFO - Portfolio Value: 10000.00
+2025-03-28 21:00:20,227 - TradingBot - INFO - Open Positions: 0
+2025-03-28 21:00:20,228 - TradingBot - INFO - Performance Metrics:
+2025-03-28 21:00:20,228 - TradingBot - INFO -   Total Trades: 0
+2025-03-28 21:00:20,229 - TradingBot - INFO -   Win Rate: 0.00%
+2025-03-28 21:00:20,229 - TradingBot - INFO -   Total P&L: 0.00
+2025-03-28 21:00:20,230 - TradingBot - INFO -   Average P&L: 0.00
+2025-03-28 21:00:20,230 - TradingBot - INFO - Sleeping for 60 seconds
+2025-03-28 21:00:31,129 - TradingBot - INFO - Trading bot stopped by user
+2025-03-28 21:00:31,129 - TradingBot - INFO - Trading bot stopped
+2025-03-28 21:00:31,131 - TradingBot.Notifications - INFO - Console notification: Trading Bot Stopped

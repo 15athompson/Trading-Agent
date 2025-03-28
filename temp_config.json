@@ -1,6 +1,6 @@
 {
     "api": {
-        "provider": "demo",
+        "provider": "example_provider",
         "api_key": "YOUR_API_KEY",
         "api_secret": "YOUR_API_SECRET"
     },
@@ -10,11 +10,7 @@
             "ETH/USD"
         ],
         "interval": "1h",
-        "strategy": "simple_moving_average",
-        "strategy_params": {
-            "short_window": 20,
-            "long_window": 50
-        },
+        "strategy": "ml_ensemble",
         "risk_management": {
             "max_position_size": 0.1,
             "stop_loss": 0.05,
@@ -23,8 +19,6 @@
     },
     "bot_settings": {
         "update_interval": 60,
-        "backtest_mode": false,
-        "use_ml": false,
-        "use_notifications": true
+        "backtest_mode": false
     }
 }

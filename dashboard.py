@@ -1,33 +1,203 @@
+#!/usr/bin/env python3
 """
 Web Dashboard for Trading Bot
 
-This module provides a web dashboard for monitoring the trading bot's performance.
+This module provides a web-based dashboard for monitoring and controlling the trading bot.
 """
 
-import os
-import json
 import logging
-import threading
+import json
+import os
 import time
-from datetime import datetime, timedelta
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import dash
-from dash import dcc, html, dash_table
-from dash.dependencies import Input, Output, State
-import flask
-
-# Import trading bot modules
-from trading_bot import TradingBot
-from portfolio_manager import PortfolioManager
+import threading
+from datetime import datetime
+import webbrowser
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import socketserver
+import urllib.parse
 
 logger = logging.getLogger("TradingBot.Dashboard")
 
+# HTML template for the dashboard
+HTML_TEMPLATE = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Bot Dashboard</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5; }}
+        .container {{ max-width: 1200px; margin: 0 auto; padding: 20px; }}
+        .header {{ background-color: #2c3e50; color: white; padding: 20px; text-align: center; margin-bottom: 20px; }}
+        .card {{ background-color: white; border-radius: 5px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); padding: 20px; margin-bottom: 20px; }}
+        .card-title {{ font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #2c3e50; }}
+        .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); grid-gap: 20px; }}
+        .status {{ display: inline-block; padding: 5px 10px; border-radius: 3px; font-size: 14px; font-weight: bold; }}
+        .status-running {{ background-color: #2ecc71; color: white; }}
+        .status-stopped {{ background-color: #e74c3c; color: white; }}
+        .btn {{ display: inline-block; padding: 8px 16px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; text-decoration: none; }}
+        .btn:hover {{ background-color: #2980b9; }}
+        .btn-danger {{ background-color: #e74c3c; }}
+        .btn-danger:hover {{ background-color: #c0392b; }}
+        .btn-success {{ background-color: #2ecc71; }}
+        .btn-success:hover {{ background-color: #27ae60; }}
+        table {{ width: 100%; border-collapse: collapse; }}
+        table, th, td {{ border: 1px solid #ddd; }}
+        th, td {{ padding: 12px; text-align: left; }}
+        th {{ background-color: #f2f2f2; }}
+        tr:nth-child(even) {{ background-color: #f9f9f9; }}
+        .positive {{ color: #2ecc71; }}
+        .negative {{ color: #e74c3c; }}
+        .refresh-btn {{ float: right; margin-bottom: 10px; }}
+        .footer {{ text-align: center; margin-top: 30px; padding: 20px; color: #7f8c8d; font-size: 14px; }}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Trading Bot Dashboard</h1>
+        <p>Monitor and control your trading bot</p>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-title">Bot Status</div>
+            <div>
+                Status: <span class="status {status_class}">{status}</span>
+                <div style="margin-top: 15px;">
+                    <a href="/start" class="btn btn-success">Start Bot</a>
+                    <a href="/stop" class="btn btn-danger">Stop Bot</a>
+                    <a href="/refresh" class="btn">Refresh</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-title">Portfolio Summary</div>
+                <table>
+                    <tr>
+                        <td>Balance:</td>
+                        <td>${portfolio_balance}</td>
+                    </tr>
+                    <tr>
+                        <td>Portfolio Value:</td>
+                        <td>${portfolio_value}</td>
+                    </tr>
+                    <tr>
+                        <td>Open Positions:</td>
+                        <td>{open_positions}</td>
+                    </tr>
+                    <tr>
+                        <td>Total P&L:</td>
+                        <td class="{pnl_class}">${total_pnl} ({total_pnl_percent}%)</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Performance Metrics</div>
+                <table>
+                    <tr>
+                        <td>Total Trades:</td>
+                        <td>{total_trades}</td>
+                    </tr>
+                    <tr>
+                        <td>Win Rate:</td>
+                        <td>{win_rate}%</td>
+                    </tr>
+                    <tr>
+                        <td>Average P&L:</td>
+                        <td class="{avg_pnl_class}">${avg_pnl}</td>
+                    </tr>
+                    <tr>
+                        <td>Last Updated:</td>
+                        <td>{last_updated}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Market Data</div>
+            <a href="/refresh" class="btn refresh-btn">Refresh</a>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Price</th>
+                        <th>24h Change</th>
+                        <th>Signal</th>
+                        <th>Confidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {market_data_rows}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Open Positions</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Type</th>
+                        <th>Entry Price</th>
+                        <th>Current Price</th>
+                        <th>Size</th>
+                        <th>P&L</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {positions_rows}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Recent Trades</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Symbol</th>
+                        <th>Type</th>
+                        <th>Price</th>
+                        <th>Size</th>
+                        <th>P&L</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {trades_rows}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Bot Configuration</div>
+            <pre>{config_json}</pre>
+            <a href="/config" class="btn">Edit Configuration</a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Trading Bot Dashboard v1.0 | &copy; 2025</p>
+    </div>
+
+    <script>
+        // Auto-refresh the page every 60 seconds
+        setTimeout(function() {{
+            window.location.href = '/refresh';
+        }}, 60000);
+    </script>
+</body>
+</html>"""
+
 class TradingBotDashboard:
     """
-    Web dashboard for monitoring the trading bot.
+    Web dashboard for the trading bot.
     """
     
     def __init__(self, config_path="config.json", port=8050, debug=False):
@@ -37,1054 +207,559 @@ class TradingBotDashboard:
         Args:
             config_path (str): Path to the configuration file
             port (int): Port to run the dashboard on
-            debug (bool): Whether to run in debug mode
+            debug (bool): Whether to enable debug mode
         """
         self.config_path = config_path
         self.port = port
         self.debug = debug
+        self.bot_running = False
+        self.bot_thread = None
+        self.bot = None
         
         # Load configuration
+        self.config = self._load_config()
+        
+        # Initialize data
+        self.portfolio_data = {
+            "balance": 10000.00,
+            "value": 10000.00,
+            "open_positions": 0,
+            "total_pnl": 0.00,
+            "total_pnl_percent": 0.00
+        }
+        
+        self.performance_metrics = {
+            "total_trades": 0,
+            "win_rate": 0.00,
+            "avg_pnl": 0.00,
+            "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        
+        self.market_data = {
+            "BTC/USD": {
+                "price": 50000.00,
+                "change_24h": 2.5,
+                "signal": "HOLD",
+                "confidence": 0.00
+            },
+            "ETH/USD": {
+                "price": 3000.00,
+                "change_24h": 1.8,
+                "signal": "HOLD",
+                "confidence": 0.00
+            }
+        }
+        
+        self.positions = {}
+        
+        self.trades = [
+            {
+                "date": "2025-03-28 10:15:22",
+                "symbol": "BTC/USD",
+                "type": "BUY",
+                "price": 49500.00,
+                "size": 0.1,
+                "pnl": 0.00
+            },
+            {
+                "date": "2025-03-28 12:30:45",
+                "symbol": "BTC/USD",
+                "type": "SELL",
+                "price": 50200.00,
+                "size": 0.1,
+                "pnl": 70.00
+            }
+        ]
+        
+        logger.info(f"Dashboard initialized on port {port}")
+    
+    def _load_config(self):
+        """
+        Load configuration from a JSON file.
+        
+        Returns:
+            dict: Configuration parameters
+        """
         try:
-            with open(config_path, 'r') as f:
-                self.config = json.load(f)
-            logger.info(f"Dashboard loaded configuration from {config_path}")
+            with open(self.config_path, 'r') as f:
+                config = json.load(f)
+            logger.info(f"Configuration loaded from {self.config_path}")
+            return config
+        except FileNotFoundError:
+            logger.warning(f"Configuration file {self.config_path} not found. Using default configuration.")
+            return {
+                "api": {
+                    "provider": "demo",
+                    "api_key": "YOUR_API_KEY",
+                    "api_secret": "YOUR_API_SECRET"
+                },
+                "trading": {
+                    "symbols": ["BTC/USD", "ETH/USD"],
+                    "interval": "1h",
+                    "strategy": "simple_moving_average",
+                    "strategy_params": {
+                        "short_window": 20,
+                        "long_window": 50
+                    },
+                    "risk_management": {
+                        "max_position_size": 0.1,
+                        "stop_loss": 0.05,
+                        "take_profit": 0.1
+                    }
+                },
+                "bot_settings": {
+                    "update_interval": 60,
+                    "backtest_mode": False,
+                    "use_ml": False,
+                    "use_notifications": True
+                }
+            }
+    
+    def _save_config(self, config):
+        """
+        Save configuration to a JSON file.
+        
+        Args:
+            config (dict): Configuration parameters
+        """
+        try:
+            with open(self.config_path, 'w') as f:
+                json.dump(config, f, indent=4)
+            logger.info(f"Configuration saved to {self.config_path}")
+            self.config = config
         except Exception as e:
-            logger.error(f"Failed to load configuration: {e}")
-            self.config = {}
-        
-        # Initialize trading bot
-        self.bot = None
-        self.bot_thread = None
-        self.bot_running = False
-        
-        # Initialize portfolio manager
-        self.portfolio_manager = PortfolioManager()
-        
-        # Initialize data storage
-        self.market_data = {}
-        self.signals = []
-        self.portfolio_values = []
-        self.last_update = datetime.now()
-        
-        # Initialize Flask server
-        self.server = flask.Flask(__name__)
-        
-        # Initialize Dash app
-        self.app = dash.Dash(__name__, server=self.server)
-        self.app.title = "Trading Bot Dashboard"
-        
-        # Set up the dashboard layout
-        self._setup_layout()
-        
-        # Set up callbacks
-        self._setup_callbacks()
-        
-        logger.info("Dashboard initialized")
-    
-    def _setup_layout(self):
-        """
-        Set up the dashboard layout.
-        """
-        self.app.layout = html.Div([
-            # Header
-            html.Div([
-                html.H1("Trading Bot Dashboard", style={"margin-bottom": "0px"}),
-                html.P("Real-time monitoring and control of your trading bot", 
-                       style={"margin-top": "0px", "color": "#666"})
-            ], style={"text-align": "center", "margin-bottom": "20px"}),
-            
-            # Control panel
-            html.Div([
-                html.Div([
-                    html.H3("Bot Control", style={"margin-top": "0px"}),
-                    html.Div([
-                        html.Button("Start Bot", id="start-bot-button", 
-                                   className="control-button start-button"),
-                        html.Button("Stop Bot", id="stop-bot-button", 
-                                   className="control-button stop-button"),
-                        html.Div(id="bot-status", className="status-indicator")
-                    ], style={"display": "flex", "align-items": "center", "gap": "10px"}),
-                    html.Div(id="control-message", style={"margin-top": "10px", "color": "#666"})
-                ], className="control-panel"),
-                
-                html.Div([
-                    html.H3("Portfolio Summary", style={"margin-top": "0px"}),
-                    html.Div(id="portfolio-summary", className="summary-panel")
-                ], className="control-panel"),
-                
-                html.Div([
-                    html.H3("Market Overview", style={"margin-top": "0px"}),
-                    html.Div(id="market-overview", className="summary-panel")
-                ], className="control-panel")
-            ], style={"display": "flex", "justify-content": "space-between", "margin-bottom": "20px"}),
-            
-            # Main content
-            html.Div([
-                # Tabs
-                dcc.Tabs([
-                    # Portfolio tab
-                    dcc.Tab(label="Portfolio", children=[
-                        html.Div([
-                            html.H3("Portfolio Performance"),
-                            dcc.Graph(id="portfolio-chart"),
-                            html.H3("Open Positions"),
-                            html.Div(id="positions-table"),
-                            html.H3("Trade History"),
-                            html.Div(id="trade-history-table")
-                        ], className="tab-content")
-                    ]),
-                    
-                    # Market Data tab
-                    dcc.Tab(label="Market Data", children=[
-                        html.Div([
-                            html.Div([
-                                html.H3("Symbol"),
-                                dcc.Dropdown(
-                                    id="symbol-dropdown",
-                                    options=[],
-                                    value=None
-                                )
-                            ], style={"width": "200px", "margin-bottom": "20px"}),
-                            dcc.Graph(id="market-chart"),
-                            html.H3("Trading Signals"),
-                            html.Div(id="signals-table")
-                        ], className="tab-content")
-                    ]),
-                    
-                    # Settings tab
-                    dcc.Tab(label="Settings", children=[
-                        html.Div([
-                            html.H3("Bot Configuration"),
-                            html.Div([
-                                html.Div([
-                                    html.Label("Trading Strategy"),
-                                    dcc.Dropdown(
-                                        id="strategy-dropdown",
-                                        options=[
-                                            {"label": "Simple Moving Average", "value": "simple_moving_average"},
-                                            {"label": "RSI Strategy", "value": "rsi_strategy"},
-                                            {"label": "ML Strategy", "value": "ml_strategy"},
-                                            {"label": "ML Ensemble", "value": "ml_ensemble"}
-                                        ],
-                                        value=self.config.get("trading", {}).get("strategy", "simple_moving_average")
-                                    )
-                                ], className="settings-item"),
-                                
-                                html.Div([
-                                    html.Label("Update Interval (seconds)"),
-                                    dcc.Input(
-                                        id="update-interval-input",
-                                        type="number",
-                                        min=10,
-                                        max=3600,
-                                        value=self.config.get("bot_settings", {}).get("update_interval", 60)
-                                    )
-                                ], className="settings-item"),
-                                
-                                html.Div([
-                                    html.Label("Risk Management"),
-                                    html.Div([
-                                        html.Div([
-                                            html.Label("Max Position Size (%)"),
-                                            dcc.Input(
-                                                id="max-position-size-input",
-                                                type="number",
-                                                min=1,
-                                                max=100,
-                                                value=self.config.get("trading", {}).get("risk_management", {}).get("max_position_size", 10) * 100
-                                            )
-                                        ], className="settings-subitem"),
-                                        
-                                        html.Div([
-                                            html.Label("Stop Loss (%)"),
-                                            dcc.Input(
-                                                id="stop-loss-input",
-                                                type="number",
-                                                min=1,
-                                                max=50,
-                                                value=self.config.get("trading", {}).get("risk_management", {}).get("stop_loss", 5) * 100
-                                            )
-                                        ], className="settings-subitem"),
-                                        
-                                        html.Div([
-                                            html.Label("Take Profit (%)"),
-                                            dcc.Input(
-                                                id="take-profit-input",
-                                                type="number",
-                                                min=1,
-                                                max=100,
-                                                value=self.config.get("trading", {}).get("risk_management", {}).get("take_profit", 10) * 100
-                                            )
-                                        ], className="settings-subitem")
-                                    ], style={"display": "flex", "gap": "20px"})
-                                ], className="settings-item"),
-                                
-                                html.Button("Save Settings", id="save-settings-button", 
-                                           className="control-button save-button"),
-                                html.Div(id="settings-message", style={"margin-top": "10px", "color": "#666"})
-                            ], className="settings-container")
-                        ], className="tab-content")
-                    ])
-                ])
-            ], className="main-content"),
-            
-            # Footer
-            html.Div([
-                html.P(f"Last updated: ", style={"margin": "0px"}),
-                html.P(id="last-update-time", style={"margin": "0px", "font-weight": "bold"})
-            ], style={"display": "flex", "gap": "5px", "justify-content": "center", "margin-top": "20px"}),
-            
-            # Refresh interval
-            dcc.Interval(
-                id="refresh-interval",
-                interval=5 * 1000,  # in milliseconds
-                n_intervals=0
-            )
-        ], className="dashboard-container")
-        
-        # Add CSS
-        self._add_css()
-    
-    def _add_css(self):
-        """
-        Add CSS styles to the dashboard.
-        """
-        self.app.index_string = '''
-        <!DOCTYPE html>
-        <html>
-            <head>
-                {%metas%}
-                <title>{%title%}</title>
-                {%favicon%}
-                {%css%}
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        margin: 0;
-                        padding: 0;
-                        background-color: #f5f5f5;
-                    }
-                    
-                    .dashboard-container {
-                        max-width: 1200px;
-                        margin: 0 auto;
-                        padding: 20px;
-                    }
-                    
-                    .control-panel {
-                        background-color: white;
-                        border-radius: 5px;
-                        padding: 15px;
-                        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-                        width: 30%;
-                    }
-                    
-                    .control-button {
-                        padding: 8px 15px;
-                        border: none;
-                        border-radius: 4px;
-                        cursor: pointer;
-                        font-weight: bold;
-                    }
-                    
-                    .start-button {
-                        background-color: #4CAF50;
-                        color: white;
-                    }
-                    
-                    .stop-button {
-                        background-color: #f44336;
-                        color: white;
-                    }
-                    
-                    .save-button {
-                        background-color: #2196F3;
-                        color: white;
-                    }
-                    
-                    .status-indicator {
-                        padding: 5px 10px;
-                        border-radius: 4px;
-                        font-weight: bold;
-                    }
-                    
-                    .status-running {
-                        background-color: #4CAF50;
-                        color: white;
-                    }
-                    
-                    .status-stopped {
-                        background-color: #f44336;
-                        color: white;
-                    }
-                    
-                    .main-content {
-                        background-color: white;
-                        border-radius: 5px;
-                        padding: 20px;
-                        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-                    }
-                    
-                    .tab-content {
-                        padding: 20px 0;
-                    }
-                    
-                    .summary-panel {
-                        margin-top: 10px;
-                    }
-                    
-                    .settings-container {
-                        display: flex;
-                        flex-direction: column;
-                        gap: 20px;
-                    }
-                    
-                    .settings-item {
-                        margin-bottom: 15px;
-                    }
-                    
-                    .settings-subitem {
-                        margin-top: 10px;
-                    }
-                    
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                    }
-                    
-                    th, td {
-                        padding: 8px;
-                        text-align: left;
-                        border-bottom: 1px solid #ddd;
-                    }
-                    
-                    th {
-                        background-color: #f2f2f2;
-                    }
-                </style>
-            </head>
-            <body>
-                {%app_entry%}
-                <footer>
-                    {%config%}
-                    {%scripts%}
-                    {%renderer%}
-                </footer>
-            </body>
-        </html>
-        '''
-    
-    def _setup_callbacks(self):
-        """
-        Set up the dashboard callbacks.
-        """
-        # Callback to update bot status
-        @self.app.callback(
-            [Output("bot-status", "children"),
-             Output("bot-status", "className"),
-             Output("control-message", "children")],
-            [Input("start-bot-button", "n_clicks"),
-             Input("stop-bot-button", "n_clicks"),
-             Input("refresh-interval", "n_intervals")]
-        )
-        def update_bot_status(start_clicks, stop_clicks, n_intervals):
-            ctx = dash.callback_context
-            
-            if not ctx.triggered:
-                # Initial load
-                if self.bot_running:
-                    return "Running", "status-indicator status-running", ""
-                else:
-                    return "Stopped", "status-indicator status-stopped", ""
-            
-            button_id = ctx.triggered[0]["prop_id"].split(".")[0]
-            
-            if button_id == "start-bot-button" and start_clicks:
-                if not self.bot_running:
-                    self._start_bot()
-                    return "Running", "status-indicator status-running", "Bot started successfully"
-                else:
-                    return "Running", "status-indicator status-running", "Bot is already running"
-            
-            elif button_id == "stop-bot-button" and stop_clicks:
-                if self.bot_running:
-                    self._stop_bot()
-                    return "Stopped", "status-indicator status-stopped", "Bot stopped successfully"
-                else:
-                    return "Stopped", "status-indicator status-stopped", "Bot is already stopped"
-            
-            # Refresh interval
-            if self.bot_running:
-                return "Running", "status-indicator status-running", ""
-            else:
-                return "Stopped", "status-indicator status-stopped", ""
-        
-        # Callback to update portfolio summary
-        @self.app.callback(
-            Output("portfolio-summary", "children"),
-            [Input("refresh-interval", "n_intervals")]
-        )
-        def update_portfolio_summary(n_intervals):
-            balance = self.portfolio_manager.balance
-            positions = self.portfolio_manager.positions
-            
-            # Calculate portfolio value
-            portfolio_value = balance
-            for symbol, position in positions.items():
-                if symbol in self.market_data and "current_price" in self.market_data[symbol]:
-                    current_price = self.market_data[symbol]["current_price"]
-                    portfolio_value += position["size"] * current_price
-            
-            # Calculate performance metrics
-            metrics = self.portfolio_manager.get_performance_metrics()
-            
-            return html.Div([
-                html.Div([
-                    html.Div("Balance:", style={"font-weight": "bold"}),
-                    html.Div(f"${balance:.2f}")
-                ], style={"display": "flex", "justify-content": "space-between"}),
-                
-                html.Div([
-                    html.Div("Portfolio Value:", style={"font-weight": "bold"}),
-                    html.Div(f"${portfolio_value:.2f}")
-                ], style={"display": "flex", "justify-content": "space-between"}),
-                
-                html.Div([
-                    html.Div("Open Positions:", style={"font-weight": "bold"}),
-                    html.Div(f"{len(positions)}")
-                ], style={"display": "flex", "justify-content": "space-between"}),
-                
-                html.Div([
-                    html.Div("Total Trades:", style={"font-weight": "bold"}),
-                    html.Div(f"{metrics['total_trades']}")
-                ], style={"display": "flex", "justify-content": "space-between"}),
-                
-                html.Div([
-                    html.Div("Win Rate:", style={"font-weight": "bold"}),
-                    html.Div(f"{metrics['win_rate']*100:.2f}%")
-                ], style={"display": "flex", "justify-content": "space-between"}),
-                
-                html.Div([
-                    html.Div("Total P&L:", style={"font-weight": "bold"}),
-                    html.Div(f"${metrics['total_profit_loss']:.2f}")
-                ], style={"display": "flex", "justify-content": "space-between"})
-            ])
-        
-        # Callback to update market overview
-        @self.app.callback(
-            Output("market-overview", "children"),
-            [Input("refresh-interval", "n_intervals")]
-        )
-        def update_market_overview(n_intervals):
-            if not self.market_data:
-                return html.Div("No market data available")
-            
-            market_overview = []
-            
-            for symbol, data in self.market_data.items():
-                if "current_price" in data:
-                    current_price = data["current_price"]
-                    
-                    # Calculate 24h change if available
-                    change_24h = 0.0
-                    change_24h_pct = 0.0
-                    
-                    if "historical_prices" in data and len(data["historical_prices"]) > 24:
-                        price_24h_ago = data["historical_prices"][-24]
-                        change_24h = current_price - price_24h_ago
-                        change_24h_pct = (change_24h / price_24h_ago) * 100
-                    
-                    # Determine color based on change
-                    color = "green" if change_24h >= 0 else "red"
-                    
-                    market_overview.append(html.Div([
-                        html.Div(symbol, style={"font-weight": "bold"}),
-                        html.Div([
-                            html.Span(f"${current_price:.2f}", style={"margin-right": "10px"}),
-                            html.Span(f"{change_24h_pct:+.2f}%", style={"color": color})
-                        ], style={"display": "flex"})
-                    ], style={"display": "flex", "justify-content": "space-between", "margin-bottom": "5px"}))
-            
-            return html.Div(market_overview)
-        
-        # Callback to update portfolio chart
-        @self.app.callback(
-            Output("portfolio-chart", "figure"),
-            [Input("refresh-interval", "n_intervals")]
-        )
-        def update_portfolio_chart(n_intervals):
-            # Create a figure with secondary y-axis
-            fig = make_subplots(specs=[[{"secondary_y": True}]])
-            
-            # Add portfolio value trace
-            if self.portfolio_values:
-                timestamps = [entry["timestamp"] for entry in self.portfolio_values]
-                values = [entry["value"] for entry in self.portfolio_values]
-                
-                fig.add_trace(
-                    go.Scatter(
-                        x=timestamps,
-                        y=values,
-                        name="Portfolio Value",
-                        line=dict(color="#2196F3", width=2)
-                    ),
-                    secondary_y=False
-                )
-            
-            # Add trade markers
-            buy_timestamps = []
-            buy_values = []
-            sell_timestamps = []
-            sell_values = []
-            
-            for trade in self.portfolio_manager.trade_history:
-                # Convert timestamps to datetime
-                open_time = datetime.fromtimestamp(trade["open_time"])
-                close_time = datetime.fromtimestamp(trade["close_time"])
-                
-                # Find portfolio value at open and close times
-                open_value = None
-                close_value = None
-                
-                for entry in self.portfolio_values:
-                    entry_time = entry["timestamp"]
-                    if isinstance(entry_time, str):
-                        entry_time = datetime.fromisoformat(entry_time)
-                    
-                    if abs((entry_time - open_time).total_seconds()) < 3600 and open_value is None:
-                        open_value = entry["value"]
-                    
-                    if abs((entry_time - close_time).total_seconds()) < 3600 and close_value is None:
-                        close_value = entry["value"]
-                
-                if open_value is not None:
-                    buy_timestamps.append(open_time)
-                    buy_values.append(open_value)
-                
-                if close_value is not None:
-                    sell_timestamps.append(close_time)
-                    sell_values.append(close_value)
-            
-            # Add buy markers
-            if buy_timestamps:
-                fig.add_trace(
-                    go.Scatter(
-                        x=buy_timestamps,
-                        y=buy_values,
-                        mode="markers",
-                        name="Buy",
-                        marker=dict(
-                            color="green",
-                            size=10,
-                            symbol="triangle-up"
-                        )
-                    ),
-                    secondary_y=False
-                )
-            
-            # Add sell markers
-            if sell_timestamps:
-                fig.add_trace(
-                    go.Scatter(
-                        x=sell_timestamps,
-                        y=sell_values,
-                        mode="markers",
-                        name="Sell",
-                        marker=dict(
-                            color="red",
-                            size=10,
-                            symbol="triangle-down"
-                        )
-                    ),
-                    secondary_y=False
-                )
-            
-            # Update layout
-            fig.update_layout(
-                title="Portfolio Performance",
-                xaxis_title="Date",
-                yaxis_title="Portfolio Value ($)",
-                legend=dict(
-                    orientation="h",
-                    yanchor="bottom",
-                    y=1.02,
-                    xanchor="right",
-                    x=1
-                ),
-                margin=dict(l=40, r=40, t=40, b=40)
-            )
-            
-            return fig
-        
-        # Callback to update positions table
-        @self.app.callback(
-            Output("positions-table", "children"),
-            [Input("refresh-interval", "n_intervals")]
-        )
-        def update_positions_table(n_intervals):
-            positions = self.portfolio_manager.positions
-            
-            if not positions:
-                return html.Div("No open positions")
-            
-            # Create table data
-            table_data = []
-            
-            for symbol, position in positions.items():
-                entry_price = position["entry_price"]
-                size = position["size"]
-                position_type = position["type"]
-                open_time = datetime.fromtimestamp(position["open_time"]).strftime("%Y-%m-%d %H:%M:%S")
-                
-                # Get current price
-                current_price = entry_price
-                if symbol in self.market_data and "current_price" in self.market_data[symbol]:
-                    current_price = self.market_data[symbol]["current_price"]
-                
-                # Calculate P&L
-                if position_type == "long":
-                    pnl = (current_price - entry_price) * size
-                    pnl_percent = (current_price / entry_price - 1) * 100
-                else:  # short position
-                    pnl = (entry_price - current_price) * size
-                    pnl_percent = (entry_price / current_price - 1) * 100
-                
-                table_data.append({
-                    "Symbol": symbol,
-                    "Type": position_type.upper(),
-                    "Size": f"{size:.6f}",
-                    "Entry Price": f"${entry_price:.2f}",
-                    "Current Price": f"${current_price:.2f}",
-                    "P&L": f"${pnl:.2f} ({pnl_percent:.2f}%)",
-                    "Open Time": open_time
-                })
-            
-            # Create table
-            table = dash_table.DataTable(
-                id="positions-table-data",
-                columns=[{"name": col, "id": col} for col in table_data[0].keys()],
-                data=table_data,
-                style_table={"overflowX": "auto"},
-                style_cell={"textAlign": "left"},
-                style_data_conditional=[
-                    {
-                        "if": {"filter_query": "{P&L} contains '('"},
-                        "color": "green"
-                    },
-                    {
-                        "if": {"filter_query": "{P&L} contains '-'"},
-                        "color": "red"
-                    }
-                ]
-            )
-            
-            return table
-        
-        # Callback to update trade history table
-        @self.app.callback(
-            Output("trade-history-table", "children"),
-            [Input("refresh-interval", "n_intervals")]
-        )
-        def update_trade_history_table(n_intervals):
-            trade_history = self.portfolio_manager.trade_history
-            
-            if not trade_history:
-                return html.Div("No trade history")
-            
-            # Create table data
-            table_data = []
-            
-            for trade in trade_history:
-                symbol = trade["symbol"]
-                trade_type = trade["type"]
-                entry_price = trade["entry_price"]
-                exit_price = trade["exit_price"]
-                size = trade["size"]
-                pnl = trade["pnl"]
-                pnl_percent = trade["pnl_percent"]
-                open_time = datetime.fromtimestamp(trade["open_time"]).strftime("%Y-%m-%d %H:%M:%S")
-                close_time = datetime.fromtimestamp(trade["close_time"]).strftime("%Y-%m-%d %H:%M:%S")
-                reason = trade["reason"]
-                
-                table_data.append({
-                    "Symbol": symbol,
-                    "Type": trade_type.upper(),
-                    "Size": f"{size:.6f}",
-                    "Entry Price": f"${entry_price:.2f}",
-                    "Exit Price": f"${exit_price:.2f}",
-                    "P&L": f"${pnl:.2f} ({pnl_percent:.2f}%)",
-                    "Open Time": open_time,
-                    "Close Time": close_time,
-                    "Reason": reason.capitalize()
-                })
-            
-            # Sort by close time (most recent first)
-            table_data.sort(key=lambda x: x["Close Time"], reverse=True)
-            
-            # Create table
-            table = dash_table.DataTable(
-                id="trade-history-table-data",
-                columns=[{"name": col, "id": col} for col in table_data[0].keys()],
-                data=table_data,
-                style_table={"overflowX": "auto"},
-                style_cell={"textAlign": "left"},
-                style_data_conditional=[
-                    {
-                        "if": {"filter_query": "{P&L} contains '('"},
-                        "color": "green"
-                    },
-                    {
-                        "if": {"filter_query": "{P&L} contains '-'"},
-                        "color": "red"
-                    }
-                ],
-                page_size=10
-            )
-            
-            return table
-        
-        # Callback to update symbol dropdown
-        @self.app.callback(
-            Output("symbol-dropdown", "options"),
-            [Input("refresh-interval", "n_intervals")]
-        )
-        def update_symbol_dropdown(n_intervals):
-            symbols = list(self.market_data.keys())
-            
-            if not symbols:
-                return []
-            
-            return [{"label": symbol, "value": symbol} for symbol in symbols]
-        
-        # Callback to update symbol dropdown value
-        @self.app.callback(
-            Output("symbol-dropdown", "value"),
-            [Input("symbol-dropdown", "options")]
-        )
-        def update_symbol_dropdown_value(options):
-            if not options:
-                return None
-            
-            return options[0]["value"]
-        
-        # Callback to update market chart
-        @self.app.callback(
-            Output("market-chart", "figure"),
-            [Input("symbol-dropdown", "value"),
-             Input("refresh-interval", "n_intervals")]
-        )
-        def update_market_chart(symbol, n_intervals):
-            if not symbol or symbol not in self.market_data:
-                return go.Figure()
-            
-            data = self.market_data[symbol]
-            
-            if "historical_prices" not in data or not data["historical_prices"]:
-                return go.Figure()
-            
-            # Create a figure with secondary y-axis
-            fig = make_subplots(specs=[[{"secondary_y": True}]])
-            
-            # Add price trace
-            timestamps = data["timestamps"]
-            prices = data["historical_prices"]
-            
-            fig.add_trace(
-                go.Scatter(
-                    x=timestamps,
-                    y=prices,
-                    name="Price",
-                    line=dict(color="#2196F3", width=2)
-                ),
-                secondary_y=False
-            )
-            
-            # Add volume trace if available
-            if "volumes" in data and data["volumes"]:
-                volumes = data["volumes"]
-                
-                fig.add_trace(
-                    go.Bar(
-                        x=timestamps,
-                        y=volumes,
-                        name="Volume",
-                        marker=dict(color="#9E9E9E", opacity=0.3)
-                    ),
-                    secondary_y=True
-                )
-            
-            # Add signals
-            buy_signals = []
-            sell_signals = []
-            
-            for signal in self.signals:
-                if signal["symbol"] == symbol:
-                    if signal["action"] == "buy":
-                        buy_signals.append({
-                            "timestamp": signal["timestamp"],
-                            "price": prices[timestamps.index(signal["timestamp"])] if signal["timestamp"] in timestamps else None,
-                            "confidence": signal["confidence"]
-                        })
-                    elif signal["action"] == "sell":
-                        sell_signals.append({
-                            "timestamp": signal["timestamp"],
-                            "price": prices[timestamps.index(signal["timestamp"])] if signal["timestamp"] in timestamps else None,
-                            "confidence": signal["confidence"]
-                        })
-            
-            # Add buy signals
-            if buy_signals:
-                buy_timestamps = [signal["timestamp"] for signal in buy_signals if signal["price"] is not None]
-                buy_prices = [signal["price"] for signal in buy_signals if signal["price"] is not None]
-                
-                fig.add_trace(
-                    go.Scatter(
-                        x=buy_timestamps,
-                        y=buy_prices,
-                        mode="markers",
-                        name="Buy Signal",
-                        marker=dict(
-                            color="green",
-                            size=10,
-                            symbol="triangle-up"
-                        )
-                    ),
-                    secondary_y=False
-                )
-            
-            # Add sell signals
-            if sell_signals:
-                sell_timestamps = [signal["timestamp"] for signal in sell_signals if signal["price"] is not None]
-                sell_prices = [signal["price"] for signal in sell_signals if signal["price"] is not None]
-                
-                fig.add_trace(
-                    go.Scatter(
-                        x=sell_timestamps,
-                        y=sell_prices,
-                        mode="markers",
-                        name="Sell Signal",
-                        marker=dict(
-                            color="red",
-                            size=10,
-                            symbol="triangle-down"
-                        )
-                    ),
-                    secondary_y=False
-                )
-            
-            # Update layout
-            fig.update_layout(
-                title=f"{symbol} Price Chart",
-                xaxis_title="Date",
-                yaxis_title="Price ($)",
-                yaxis2_title="Volume",
-                legend=dict(
-                    orientation="h",
-                    yanchor="bottom",
-                    y=1.02,
-                    xanchor="right",
-                    x=1
-                ),
-                margin=dict(l=40, r=40, t=40, b=40)
-            )
-            
-            return fig
-        
-        # Callback to update signals table
-        @self.app.callback(
-            Output("signals-table", "children"),
-            [Input("symbol-dropdown", "value"),
-             Input("refresh-interval", "n_intervals")]
-        )
-        def update_signals_table(symbol, n_intervals):
-            if not symbol:
-                return html.Div("No symbol selected")
-            
-            # Filter signals for the selected symbol
-            symbol_signals = [signal for signal in self.signals if signal["symbol"] == symbol]
-            
-            if not symbol_signals:
-                return html.Div("No signals for this symbol")
-            
-            # Create table data
-            table_data = []
-            
-            for signal in symbol_signals:
-                timestamp = datetime.fromtimestamp(signal["timestamp"]).strftime("%Y-%m-%d %H:%M:%S")
-                action = signal["action"].upper()
-                confidence = signal["confidence"]
-                
-                # Get additional metrics if available
-                metrics = signal.get("metrics", {})
-                metrics_str = ", ".join([f"{k}: {v}" for k, v in metrics.items()])
-                
-                table_data.append({
-                    "Timestamp": timestamp,
-                    "Action": action,
-                    "Confidence": f"{confidence:.2f}",
-                    "Metrics": metrics_str
-                })
-            
-            # Sort by timestamp (most recent first)
-            table_data.sort(key=lambda x: x["Timestamp"], reverse=True)
-            
-            # Create table
-            table = dash_table.DataTable(
-                id="signals-table-data",
-                columns=[{"name": col, "id": col} for col in table_data[0].keys()],
-                data=table_data,
-                style_table={"overflowX": "auto"},
-                style_cell={"textAlign": "left"},
-                style_data_conditional=[
-                    {
-                        "if": {"filter_query": "{Action} contains 'BUY'"},
-                        "color": "green"
-                    },
-                    {
-                        "if": {"filter_query": "{Action} contains 'SELL'"},
-                        "color": "red"
-                    }
-                ],
-                page_size=10
-            )
-            
-            return table
-        
-        # Callback to update last update time
-        @self.app.callback(
-            Output("last-update-time", "children"),
-            [Input("refresh-interval", "n_intervals")]
-        )
-        def update_last_update_time(n_intervals):
-            return self.last_update.strftime("%Y-%m-%d %H:%M:%S")
-        
-        # Callback to save settings
-        @self.app.callback(
-            Output("settings-message", "children"),
-            [Input("save-settings-button", "n_clicks")],
-            [State("strategy-dropdown", "value"),
-             State("update-interval-input", "value"),
-             State("max-position-size-input", "value"),
-             State("stop-loss-input", "value"),
-             State("take-profit-input", "value")]
-        )
-        def save_settings(n_clicks, strategy, update_interval, max_position_size, stop_loss, take_profit):
-            if not n_clicks:
-                return ""
-            
-            # Update configuration
-            if "trading" not in self.config:
-                self.config["trading"] = {}
-            
-            if "bot_settings" not in self.config:
-                self.config["bot_settings"] = {}
-            
-            if "risk_management" not in self.config["trading"]:
-                self.config["trading"]["risk_management"] = {}
-            
-            self.config["trading"]["strategy"] = strategy
-            self.config["bot_settings"]["update_interval"] = update_interval
-            self.config["trading"]["risk_management"]["max_position_size"] = max_position_size / 100
-            self.config["trading"]["risk_management"]["stop_loss"] = stop_loss / 100
-            self.config["trading"]["risk_management"]["take_profit"] = take_profit / 100
-            
-            # Save configuration
-            try:
-                with open(self.config_path, 'w') as f:
-                    json.dump(self.config, f, indent=4)
-                
-                logger.info(f"Saved configuration to {self.config_path}")
-                return "Settings saved successfully. Restart the bot to apply changes."
-            except Exception as e:
-                logger.error(f"Failed to save configuration: {e}")
-                return f"Failed to save settings: {e}"
+            logger.error(f"Failed to save configuration: {e}")
     
     def _start_bot(self):
         """
         Start the trading bot.
         """
         if self.bot_running:
-            logger.warning("Bot is already running")
+            logger.warning("Trading bot is already running")
             return
         
-        logger.info("Starting trading bot")
+        try:
+            # Import trading bot
+            from trading_bot import TradingBot
+            
+            # Create and start the bot
+            self.bot = TradingBot(self.config_path)
+            
+            # Start the bot in a separate thread
+            self.bot_thread = threading.Thread(target=self._run_bot)
+            self.bot_thread.daemon = True
+            self.bot_thread.start()
+            
+            self.bot_running = True
+            logger.info("Trading bot started")
         
-        # Initialize trading bot
-        self.bot = TradingBot(self.config_path)
-        
-        # Start bot in a separate thread
-        self.bot_thread = threading.Thread(target=self._run_bot)
-        self.bot_thread.daemon = True
-        self.bot_thread.start()
-        
-        self.bot_running = True
+        except Exception as e:
+            logger.error(f"Failed to start trading bot: {e}")
+    
+    def _run_bot(self):
+        """
+        Run the trading bot.
+        """
+        try:
+            # Run the bot
+            self.bot.run()
+        except Exception as e:
+            logger.error(f"Error in trading bot: {e}")
+        finally:
+            self.bot_running = False
     
     def _stop_bot(self):
         """
         Stop the trading bot.
         """
         if not self.bot_running:
-            logger.warning("Bot is already stopped")
+            logger.warning("Trading bot is not running")
             return
         
-        logger.info("Stopping trading bot")
-        
-        # Stop the bot
-        if self.bot:
-            self.bot.stop()
-        
-        # Wait for the thread to finish
-        if self.bot_thread:
-            self.bot_thread.join(timeout=5)
-        
-        self.bot_running = False
-    
-    def _run_bot(self):
-        """
-        Run the trading bot and update dashboard data.
-        """
         try:
-            # Initialize data
-            self.bot.fetch_market_data()
+            # Stop the bot
+            if self.bot:
+                self.bot.stop()
             
-            # Main loop
-            while self.bot_running:
-                # Update market data
-                self.bot.fetch_market_data()
-                self.market_data = self.bot.market_data
-                
-                # Generate signals
-                signals = self.bot.analyze_data()
-                for signal in signals:
-                    self.signals.append(signal)
-                
-                # Execute trades
-                self.bot.execute_trades(signals)
-                
-                # Update portfolio value
-                portfolio_value = self.bot.portfolio_manager.get_portfolio_value(self.bot.current_prices)
-                self.portfolio_values.append({
-                    "timestamp": datetime.now(),
-                    "value": portfolio_value
-                })
-                
-                # Update last update time
-                self.last_update = datetime.now()
-                
-                # Sleep for the configured interval
-                sleep_time = self.bot.config["bot_settings"]["update_interval"]
-                time.sleep(sleep_time)
+            # Wait for the thread to finish
+            if self.bot_thread:
+                self.bot_thread.join(timeout=5)
+            
+            self.bot_running = False
+            logger.info("Trading bot stopped")
         
         except Exception as e:
-            logger.error(f"Error in bot thread: {e}", exc_info=True)
-            self.bot_running = False
+            logger.error(f"Failed to stop trading bot: {e}")
+    
+    def _update_data(self):
+        """
+        Update dashboard data from the trading bot.
+        """
+        if not self.bot_running or not self.bot:
+            # Generate demo data
+            self._update_demo_data()
+            return
+        
+        try:
+            # Update portfolio data
+            self.portfolio_data["balance"] = self.bot.portfolio_manager.balance
+            self.portfolio_data["value"] = self.bot.portfolio_manager.get_portfolio_value(self.bot.current_prices)
+            self.portfolio_data["open_positions"] = len(self.bot.portfolio_manager.positions)
+            
+            # Calculate total P&L
+            initial_balance = 10000.00  # Assuming initial balance
+            self.portfolio_data["total_pnl"] = self.portfolio_data["value"] - initial_balance
+            self.portfolio_data["total_pnl_percent"] = (self.portfolio_data["value"] / initial_balance - 1) * 100
+            
+            # Update performance metrics
+            metrics = self.bot.portfolio_manager.get_performance_metrics()
+            self.performance_metrics["total_trades"] = metrics["total_trades"]
+            self.performance_metrics["win_rate"] = metrics["win_rate"] * 100
+            self.performance_metrics["avg_pnl"] = metrics["average_profit_loss"]
+            self.performance_metrics["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Update market data
+            for symbol, price in self.bot.current_prices.items():
+                if symbol not in self.market_data:
+                    self.market_data[symbol] = {
+                        "price": price,
+                        "change_24h": 0.0,
+                        "signal": "HOLD",
+                        "confidence": 0.00
+                    }
+                else:
+                    # Calculate 24h change (demo)
+                    old_price = self.market_data[symbol]["price"]
+                    change = (price / old_price - 1) * 100 if old_price > 0 else 0
+                    
+                    self.market_data[symbol]["price"] = price
+                    self.market_data[symbol]["change_24h"] = change
+            
+            # Update positions
+            self.positions = self.bot.portfolio_manager.positions
+            
+            # Update trades
+            trades = self.bot.portfolio_manager.trade_history
+            if trades:
+                self.trades = trades
+        
+        except Exception as e:
+            logger.error(f"Failed to update dashboard data: {e}")
+    
+    def _update_demo_data(self):
+        """
+        Update dashboard with demo data.
+        """
+        # Update market data with random changes
+        import random
+        
+        for symbol in self.market_data:
+            # Random price change (-2% to +2%)
+            change_pct = (random.random() * 4 - 2) / 100
+            old_price = self.market_data[symbol]["price"]
+            new_price = old_price * (1 + change_pct)
+            
+            self.market_data[symbol]["price"] = new_price
+            self.market_data[symbol]["change_24h"] = change_pct * 100
+            
+            # Random signal
+            signals = ["BUY", "SELL", "HOLD"]
+            weights = [0.2, 0.2, 0.6]
+            signal = random.choices(signals, weights=weights)[0]
+            
+            self.market_data[symbol]["signal"] = signal
+            self.market_data[symbol]["confidence"] = random.random() * 0.5 if signal != "HOLD" else 0.0
+        
+        # Update last updated time
+        self.performance_metrics["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    def _generate_html(self):
+        """
+        Generate HTML for the dashboard.
+        
+        Returns:
+            str: HTML content
+        """
+        # Update data
+        self._update_data()
+        
+        # Generate market data rows
+        market_data_rows = ""
+        for symbol, data in self.market_data.items():
+            change_class = "positive" if data["change_24h"] >= 0 else "negative"
+            change_sign = "+" if data["change_24h"] >= 0 else ""
+            
+            market_data_rows += f"""
+            <tr>
+                <td>{symbol}</td>
+                <td>${data["price"]:.2f}</td>
+                <td class="{change_class}">{change_sign}{data["change_24h"]:.2f}%</td>
+                <td>{data["signal"]}</td>
+                <td>{data["confidence"]:.2f}</td>
+            </tr>
+            """
+        
+        # Generate positions rows
+        positions_rows = ""
+        for symbol, position in self.positions.items():
+            entry_price = position["entry_price"]
+            current_price = self.market_data.get(symbol, {}).get("price", entry_price)
+            size = position["size"]
+            position_type = position["type"]
+            
+            if position_type == "long":
+                pnl = (current_price - entry_price) * size
+                pnl_percent = (current_price / entry_price - 1) * 100
+            else:  # short position
+                pnl = (entry_price - current_price) * size
+                pnl_percent = (entry_price / current_price - 1) * 100
+            
+            pnl_class = "positive" if pnl >= 0 else "negative"
+            pnl_sign = "+" if pnl >= 0 else ""
+            
+            positions_rows += f"""
+            <tr>
+                <td>{symbol}</td>
+                <td>{position_type.upper()}</td>
+                <td>${entry_price:.2f}</td>
+                <td>${current_price:.2f}</td>
+                <td>{size:.6f}</td>
+                <td class="{pnl_class}">{pnl_sign}${pnl:.2f} ({pnl_sign}{pnl_percent:.2f}%)</td>
+                <td><a href="/close_position?symbol={symbol}" class="btn btn-danger">Close</a></td>
+            </tr>
+            """
+        
+        if not self.positions:
+            positions_rows = """
+            <tr>
+                <td colspan="7" style="text-align: center;">No open positions</td>
+            </tr>
+            """
+        
+        # Generate trades rows
+        trades_rows = ""
+        for trade in self.trades[:10]:  # Show only the 10 most recent trades
+            pnl_class = "positive" if trade["pnl"] > 0 else "negative" if trade["pnl"] < 0 else ""
+            pnl_sign = "+" if trade["pnl"] > 0 else ""
+            
+            trades_rows += f"""
+            <tr>
+                <td>{trade["date"]}</td>
+                <td>{trade["symbol"]}</td>
+                <td>{trade["type"]}</td>
+                <td>${trade["price"]:.2f}</td>
+                <td>{trade["size"]:.6f}</td>
+                <td class="{pnl_class}">{pnl_sign}${trade["pnl"]:.2f}</td>
+            </tr>
+            """
+        
+        if not self.trades:
+            trades_rows = """
+            <tr>
+                <td colspan="6" style="text-align: center;">No trades yet</td>
+            </tr>
+            """
+        
+        # Format portfolio data
+        pnl_class = "positive" if self.portfolio_data["total_pnl"] >= 0 else "negative"
+        pnl_sign = "+" if self.portfolio_data["total_pnl"] >= 0 else ""
+        total_pnl = f"{pnl_sign}{self.portfolio_data['total_pnl']:.2f}"
+        total_pnl_percent = f"{pnl_sign}{self.portfolio_data['total_pnl_percent']:.2f}"
+        
+        # Format performance metrics
+        avg_pnl_class = "positive" if self.performance_metrics["avg_pnl"] >= 0 else "negative"
+        avg_pnl_sign = "+" if self.performance_metrics["avg_pnl"] >= 0 else ""
+        avg_pnl = f"{avg_pnl_sign}{self.performance_metrics['avg_pnl']:.2f}"
+        
+        # Format config JSON
+        config_json = json.dumps(self.config, indent=4)
+        
+        # Generate HTML
+        html = HTML_TEMPLATE.format(
+            status="Running" if self.bot_running else "Stopped",
+            status_class="status-running" if self.bot_running else "status-stopped",
+            portfolio_balance=f"{self.portfolio_data['balance']:.2f}",
+            portfolio_value=f"{self.portfolio_data['value']:.2f}",
+            open_positions=self.portfolio_data["open_positions"],
+            total_pnl=total_pnl,
+            total_pnl_percent=total_pnl_percent,
+            pnl_class=pnl_class,
+            total_trades=self.performance_metrics["total_trades"],
+            win_rate=f"{self.performance_metrics['win_rate']:.2f}",
+            avg_pnl=avg_pnl,
+            avg_pnl_class=avg_pnl_class,
+            last_updated=self.performance_metrics["last_updated"],
+            market_data_rows=market_data_rows,
+            positions_rows=positions_rows,
+            trades_rows=trades_rows,
+            config_json=config_json
+        )
+        
+        return html
     
     def run(self):
         """
-        Run the dashboard.
+        Run the dashboard server.
         """
-        logger.info(f"Starting dashboard on port {self.port}")
-        self.app.run_server(debug=self.debug, port=self.port)
+        # Define request handler
+        dashboard = self
+        
+        class DashboardHandler(BaseHTTPRequestHandler):
+            def do_GET(self):
+                """Handle GET requests."""
+                parsed_path = urllib.parse.urlparse(self.path)
+                path = parsed_path.path
+                
+                if path == "/":
+                    # Main dashboard
+                    self.send_response(200)
+                    self.send_header("Content-type", "text/html")
+                    self.end_headers()
+                    self.wfile.write(dashboard._generate_html().encode())
+                
+                elif path == "/start":
+                    # Start the bot
+                    dashboard._start_bot()
+                    self.send_response(302)
+                    self.send_header("Location", "/")
+                    self.end_headers()
+                
+                elif path == "/stop":
+                    # Stop the bot
+                    dashboard._stop_bot()
+                    self.send_response(302)
+                    self.send_header("Location", "/")
+                    self.end_headers()
+                
+                elif path == "/refresh":
+                    # Refresh the dashboard
+                    self.send_response(302)
+                    self.send_header("Location", "/")
+                    self.end_headers()
+                
+                elif path == "/close_position":
+                    # Close a position
+                    query = urllib.parse.parse_qs(parsed_path.query)
+                    symbol = query.get("symbol", [""])[0]
+                    
+                    if symbol and dashboard.bot_running and dashboard.bot:
+                        try:
+                            # Get current price
+                            current_price = dashboard.bot.current_prices.get(symbol)
+                            
+                            if current_price and dashboard.bot.portfolio_manager.has_position(symbol):
+                                # Close the position
+                                success, pnl = dashboard.bot.portfolio_manager.close_position(symbol, current_price, "manual")
+                                
+                                if success:
+                                    logger.info(f"Closed position for {symbol} with P&L {pnl:.2f}")
+                        
+                        except Exception as e:
+                            logger.error(f"Failed to close position: {e}")
+                    
+                    self.send_response(302)
+                    self.send_header("Location", "/")
+                    self.end_headers()
+                
+                elif path == "/config":
+                    # Show config editor (simplified)
+                    self.send_response(200)
+                    self.send_header("Content-type", "text/html")
+                    self.end_headers()
+                    
+                    html = f"""
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Trading Bot Configuration</title>
+                        <style>
+                            body {{ font-family: Arial, sans-serif; margin: 20px; }}
+                            textarea {{ width: 100%; height: 400px; font-family: monospace; }}
+                            .btn {{ display: inline-block; padding: 8px 16px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; }}
+                        </style>
+                    </head>
+                    <body>
+                        <h1>Trading Bot Configuration</h1>
+                        <p>Edit the configuration below:</p>
+                        <form action="/save_config" method="post">
+                            <textarea name="config">{json.dumps(dashboard.config, indent=4)}</textarea>
+                            <p>
+                                <button type="submit" class="btn">Save Configuration</button>
+                                <a href="/" class="btn">Cancel</a>
+                            </p>
+                        </form>
+                    </body>
+                    </html>
+                    """
+                    
+                    self.wfile.write(html.encode())
+                
+                else:
+                    # 404 Not Found
+                    self.send_response(404)
+                    self.send_header("Content-type", "text/html")
+                    self.end_headers()
+                    self.wfile.write(b"404 Not Found")
+            
+            def do_POST(self):
+                """Handle POST requests."""
+                if self.path == "/save_config":
+                    # Get content length
+                    content_length = int(self.headers["Content-Length"])
+                    
+                    # Read and parse form data
+                    post_data = self.rfile.read(content_length).decode()
+                    form_data = urllib.parse.parse_qs(post_data)
+                    
+                    # Get config JSON
+                    config_json = form_data.get("config", [""])[0]
+                    
+                    try:
+                        # Parse and save config
+                        config = json.loads(config_json)
+                        dashboard._save_config(config)
+                        
+                        # Redirect to dashboard
+                        self.send_response(302)
+                        self.send_header("Location", "/")
+                        self.end_headers()
+                    
+                    except json.JSONDecodeError:
+                        # Invalid JSON
+                        self.send_response(400)
+                        self.send_header("Content-type", "text/html")
+                        self.end_headers()
+                        self.wfile.write(b"Invalid JSON configuration")
+                
+                else:
+                    # 404 Not Found
+                    self.send_response(404)
+                    self.send_header("Content-type", "text/html")
+                    self.end_headers()
+                    self.wfile.write(b"404 Not Found")
+        
+        # Create and start the server
+        server = HTTPServer(("localhost", self.port), DashboardHandler)
+        
+        # Open browser
+        webbrowser.open(f"http://localhost:{self.port}")
+        
+        logger.info(f"Dashboard server started at http://localhost:{self.port}")
+        
+        try:
+            server.serve_forever()
+        except KeyboardInterrupt:
+            pass
+        finally:
+            # Stop the bot if it's running
+            if self.bot_running:
+                self._stop_bot()
+            
+            # Close the server
+            server.server_close()
+            logger.info("Dashboard server stopped")
 
 
 if __name__ == "__main__":
@@ -1101,12 +776,12 @@ if __name__ == "__main__":
     
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Trading Bot Dashboard")
-    parser.add_argument("--config", type=str, default="config.json",
+    parser.add_argument("--config", "-c", type=str, default="config.json",
                         help="Path to configuration file")
-    parser.add_argument("--port", type=int, default=8050,
+    parser.add_argument("--port", "-p", type=int, default=8050,
                         help="Port to run the dashboard on")
-    parser.add_argument("--debug", action="store_true",
-                        help="Run in debug mode")
+    parser.add_argument("--debug", "-d", action="store_true",
+                        help="Enable debug mode")
     
     args = parser.parse_args()
     
